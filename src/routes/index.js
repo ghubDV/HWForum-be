@@ -1,5 +1,12 @@
-const AuthController = require('../controllers/controller.auth');
+const fs = require('fs');
+const path = require('path');
+
 
 module.exports = (app) => {
-  app.post('/register', AuthController.register)
-}
+  fs
+  .readdirSync(__dirname)
+  .filter((file) => file !== 'index.js')
+  .forEach((file) => {
+    require(path.join(__dirname, file))(app);
+  })
+};
