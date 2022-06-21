@@ -14,7 +14,8 @@ const schema = Joi.object({
 
   password: 
     Joi.string()
-        /* eslint-disable-next-line */
+       .min(8)
+       .max(32)
        .pattern(new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,32}$')),
   
   confirm_password:
