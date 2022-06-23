@@ -1,13 +1,13 @@
 module.exports = {
-  port: 4000,
+  port: process.env.PORT,
   db: {
-    database: process.env.DB_NAME || 'test',
-    user: process.env.DB_USER || 'test',
-    password: process.env.DB_PASS || 'test',
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
     options: {
-      dialect: process.env.DIALECT || 'sqlite',
-      host: process.env.HOST || 'localhost',
-      storage: './test.sqlite'
+      dialect: process.env.DIALECT,
+      host: process.env.HOST,
+      storage: process.env.DB_STORAGE
     }
   }
 }

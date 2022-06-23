@@ -1,9 +1,10 @@
+require('dotenv').config({path: __dirname + '/.env'});
 const express= require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const {sequelize} = require('./models');
 const config = require('./configs');
+const {sequelize} = require('./models');
 const routes = require('./routes');
 const error = require('./middlewares/error.midddleware')
 
