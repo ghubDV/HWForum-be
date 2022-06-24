@@ -20,6 +20,8 @@ app.use(error.logErrorMiddleware);
 app.use(error.returnErrorMiddleWare);
 
 process.on('uncaughtException', err => {
+
+  error.logError(err);
  
   if (!error.isOperationalError(err)) {
     process.exit(1)

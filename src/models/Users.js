@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => 
-  sequelize.define('User', {
+  sequelize.define('Users', {
     username: {
       type: DataTypes.STRING,
       unique: true,
@@ -11,5 +11,7 @@ module.exports = (sequelize, DataTypes) =>
     hashedPassword: {
       type: DataTypes.STRING,
       allowNull: false
-    }
+    },
+    createdAt: DataTypes.DATE, 
+    updatedAt: DataTypes.DATE
   })
