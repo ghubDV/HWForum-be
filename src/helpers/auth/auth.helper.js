@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const SALT_ROUNDS = 10;
@@ -13,11 +14,34 @@ const checkPassword = (password, hashedPassword) => {
 }
 
 const generateAccessToken = (username) => {
-  return jwt.sign({ username }, process.env.TOKEN_SECRET, { expiresIn: '300s' });
+  return jwt.sign({ username }, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
+}
+
+const encryptData = (data) => {
+  const iv = crypto.randomBytes(16);
+
+  const cipher = crypto.createCipheriv(process.env.CRYPTO_ALG, process.env.CRYPTO_SECRET, iv);
+
+  const encrypted = Buffer.concat([ cipher.update(data), cipher.final() ]);
+
+  return {
+    iv: iv.toString('hex'),
+    data: encrypted.toString('hex')
+  }
+}
+
+const decryptData = ({ iv, data }) => {
+  const decipher = crypto.createDecipheriv(process.env.CRYPTO_ALG, process.env.CRYPTO_SECRET, Buffer.from(iv, 'hex'));
+
+  const decrypted = Buffer.concat([ decipher.update(Buffer.from(data, 'hex')), decipher.final() ]);
+
+  return decrypted.toString();
 }
 
 module.exports = {
   generateHashedPassword,
   checkPassword,
-  generateAccessToken
+  generateAccessToken,
+  encryptData,
+  decryptData
 }
