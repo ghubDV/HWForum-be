@@ -45,7 +45,7 @@ const loginUser = async (req, res, next) => {
 
     if(getCredentials.length !== 0 && checkPassword(user.password, getCredentials[0].hashedPassword)) {
       const accessToken = generateAccessToken(user.username);
-      res.cookie('accessToken', accessToken, { httpOnly: true });
+      res.cookie('authorization', accessToken, { httpOnly: true });
       res.send(`Logged in as ${user.username}!`);
     } else {
       throw new UnauthorizedError('Wrong user credentials!')
