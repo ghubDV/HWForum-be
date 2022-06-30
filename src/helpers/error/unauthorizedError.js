@@ -1,5 +1,5 @@
 const BaseError = require('./baseError');
-const { UNAUTHORIZED } = require('../../utils/util.httpStatusCodes');
+const { UNAUTHORIZED } = require('../../utils/httpStatusCodes.util');
 
 class UnauthorizedError extends BaseError {
   constructor(

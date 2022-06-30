@@ -1,8 +1,11 @@
 const { Users } = require('../models');
-const { generateHashedPassword, checkPassword, generateAccessToken, encryptData } = require('../helpers/auth/auth.helper');
+const { generateHashedPassword, checkPassword, generateAccessToken, encryptData, decryptData } = require('../helpers/auth/auth.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
 const { activationEmailTemplate } = require('../utils/email.util');
+const CodeSchema = require('../schemas/code.schema');
 const UnauthorizedError = require('../helpers/error/unauthorizedError');
+const BadRequestError = require('../helpers/error/badRequestError');
+const InternalError = require('../helpers/error/internalError');
 
 const insertUser = async (req, res, next) => {
   try {
@@ -66,7 +69,7 @@ const sendActivationCode = async (req, res, next) => {
     } = req.body;
   
     const userExists =  await Users.findAll({
-      attributes: ['username'],
+      attributes: ['username', 'isActivated'],
       where: {
         email: email
       }
@@ -74,10 +77,12 @@ const sendActivationCode = async (req, res, next) => {
 
     if(!userExists) {
       throw new UnauthorizedError('This email doesn\'t belong to an existing account!');
+    } else if(userExists[0].isActivated) {
+      throw new UnauthorizedError('This account is already active!');
     } else {
-      console.log(userExists[0].username);
       const username = userExists[0].username;
-      const encrypted = encryptData(username);
+      const data = `activate;${username};${Math.floor(Date.now() / 1000 / 60)}`;
+      const encrypted = encryptData(data);
       const activationCode = `${encrypted.iv}.${encrypted.data}`;
 
       await sendEmail(activationEmailTemplate(email, username, activationCode));
@@ -89,8 +94,59 @@ const sendActivationCode = async (req, res, next) => {
   }
 }
 
+const activateAccount = async (req, res, next) => {
+  try {
+    if(!req.query.code && !req.body.code) {
+      throw new BadRequestError('Request error: No data received.');
+    }
+
+    const activationCode = (req.query.code) ? req.query.code : req.body.code;
+
+    const validationResult = CodeSchema.validate({ activationCode });
+
+    if(validationResult.error !== undefined) {
+      throw new UnauthorizedError('Activation code is not valid!');
+    }
+
+    const [ iv, data ] = activationCode.split('.');
+
+    const decrypted = decryptData({
+      iv: iv,
+      data: data
+    })
+
+    const [ action, username, expiration ] = decrypted.split(';');
+    const now = Math.floor(Date.now() / 1000 / 60);
+    
+
+    if(!action || action !== 'activate' || !username || !expiration || now - expiration > 60 ) {
+      throw new UnauthorizedError('Activation code is not valid or expired!');
+    }
+
+    const activationResult = await Users.update({ 
+      isActivated: true
+    },
+    {
+      where: {
+        username: username,
+        isActivated: false
+      }
+    });
+
+    if(activationResult[0] === 0) {
+      throw new InternalError('Activation failed: activation code is not valid or the account is already active.')
+    }
+
+    res.send('Your account was activated successfully!');
+
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   insertUser,
   loginUser,
-  sendActivationCode
+  sendActivationCode,
+  activateAccount
 }
