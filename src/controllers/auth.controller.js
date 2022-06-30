@@ -2,9 +2,7 @@ const { Users } = require('../models');
 const { generateHashedPassword, checkPassword, generateAccessToken, encryptData, decryptData } = require('../helpers/auth/auth.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
 const { activationEmailTemplate } = require('../utils/email.util');
-const CodeSchema = require('../schemas/code.schema');
 const UnauthorizedError = require('../helpers/error/unauthorizedError');
-const BadRequestError = require('../helpers/error/badRequestError');
 const InternalError = require('../helpers/error/internalError');
 
 const insertUser = async (req, res, next) => {
@@ -96,18 +94,8 @@ const sendActivationCode = async (req, res, next) => {
 
 const activateAccount = async (req, res, next) => {
   try {
-    if(!req.query.code && !req.body.code) {
-      throw new BadRequestError('Request error: No data received.');
-    }
-
-    const activationCode = (req.query.code) ? req.query.code : req.body.code;
-
-    const validationResult = CodeSchema.validate({ activationCode });
-
-    if(validationResult.error !== undefined) {
-      throw new UnauthorizedError('Activation code is not valid!');
-    }
-
+    const activationCode = req.body.code || req.query.code;
+    
     const [ iv, data ] = activationCode.split('.');
 
     const decrypted = decryptData({
