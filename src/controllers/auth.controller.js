@@ -1,7 +1,7 @@
 const { Users } = require('../models');
 const { generateHashedPassword, checkPassword, generateAccessToken, encryptData, decryptData } = require('../helpers/auth/auth.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
-const { activationEmailTemplate } = require('../utils/email.util');
+const { activationEmailTemplate, resetEmailTemplate } = require('../utils/email.util');
 const UnauthorizedError = require('../helpers/error/unauthorizedError');
 const InternalError = require('../helpers/error/internalError');
 
@@ -92,11 +92,41 @@ const sendActivationCode = async (req, res, next) => {
   }
 }
 
+const sendResetCode = async(req, res, next) => {
+  try {
+    const {
+      email
+    } = req.body;
+  
+    const userExists =  await Users.findAll({
+      attributes: ['username'],
+      where: {
+        email: email
+      }
+    })
+
+    if(!userExists) {
+      throw new UnauthorizedError('This email doesn\'t belong to an existing account!');
+    } else {
+      const username = userExists[0].username;
+      const data = `reset;${username};${Math.floor(Date.now() / 1000 / 60)}`;
+      const encrypted = encryptData(data);
+      const activationCode = `${encrypted.iv}.${encrypted.data}`;
+
+      await sendEmail(resetEmailTemplate(email, username, activationCode));
+
+      res.send(`Reset password code was sent successfuly to ${email}`);
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
 const activateAccount = async (req, res, next) => {
   try {
-    const activationCode = req.body.code || req.query.code;
-    
-    const [ iv, data ] = activationCode.split('.');
+    const code = req.body.code || req.query.code;
+
+    const [ iv, data ] = code.split('.');
 
     const decrypted = decryptData({
       iv: iv,
@@ -136,5 +166,6 @@ module.exports = {
   insertUser,
   loginUser,
   sendActivationCode,
+  sendResetCode,
   activateAccount
 }

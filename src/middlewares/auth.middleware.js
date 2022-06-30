@@ -3,6 +3,7 @@ const BadRequestError = require('../helpers/error/badRequestError');
 const RegisterSchema = require('../schemas/register.schema');
 const LoginSchema = require('../schemas/login.schema');
 const CodeSchema = require('../schemas/code.schema');
+const EmailSchema = require('../schemas/email.schema');
 
 const validateRegister = (req, res, next) => {
     const {
@@ -48,17 +49,33 @@ const validateLogin = (req, res, next) => {
   next();
 }
 
-const validateActivationCode = (req, res, next) => {
-  const activationCode =  req.body.code || req.query.code;
+const validateCode = (req, res, next) => {
+  const code =  req.body.code || req.query.code;
 
-  if(!activationCode) {
+  if(!code) {
     throw new BadRequestError('Request error: No data received.');
   }
 
-  const validationResult = CodeSchema.validate({ activationCode });
+  const validationResult = CodeSchema.validate({ code });
 
   if(validationResult.error !== undefined) {
-    throw new UnauthorizedError('Activation code is not valid!');
+    throw new UnauthorizedError('Code is not valid!');
+  }
+
+   next()
+}
+
+const validateEmail = (req, res, next) => {
+  const { email } =  req.body;
+
+  if(!email) {
+    throw new BadRequestError('Request error: No data received.');
+  }
+
+  const validationResult = EmailSchema.validate({ email });
+
+  if(validationResult.error !== undefined) {
+    throw new UnauthorizedError('This email address is not valid!');
   }
 
    next()
@@ -67,5 +84,6 @@ const validateActivationCode = (req, res, next) => {
 module.exports = {
   validateRegister,
   validateLogin,
-  validateActivationCode
+  validateCode,
+  validateEmail
 }

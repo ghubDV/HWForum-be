@@ -3,7 +3,13 @@ const UnauthorizedError = require('../helpers/error/unauthorizedError');
 
 const protectRoute = async (req, res, next) => {
   try {
-    const notProtected = ['/login', '/register', '/sendActivationCode', '/activateAccount'];
+    const notProtected = [
+      '/login', 
+      '/register', 
+      '/sendActivationCode', 
+      '/activateAccount',
+      '/forgot'
+    ];
 
     if(!notProtected.includes(req.baseUrl + req.path)) {
       const cookies = req.headers.cookie.split(';');  
