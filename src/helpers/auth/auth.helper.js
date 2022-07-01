@@ -38,10 +38,24 @@ const decryptData = ({ iv, data }) => {
   return decrypted.toString();
 }
 
+const processDecrypted = (code) => {
+  const [ iv, data ] = code.split('.');
+
+  const decrypted = decryptData({
+    iv: iv,
+    data: data
+  })
+
+  const processed = decrypted.split(';');
+
+  return processed;
+}
+
 module.exports = {
   generateHashedPassword,
   checkPassword,
   generateAccessToken,
   encryptData,
-  decryptData
+  decryptData,
+  processDecrypted
 }

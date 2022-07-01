@@ -1,5 +1,6 @@
 const { Users } = require('../models');
-const { generateHashedPassword, checkPassword, generateAccessToken, encryptData, decryptData } = require('../helpers/auth/auth.helper');
+const { generateHashedPassword, checkPassword, generateAccessToken, encryptData, processDecrypted } = require('../helpers/auth/auth.helper');
+const { currentMinutes } = require('../helpers/date/date.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
 const { activationEmailTemplate, resetEmailTemplate } = require('../utils/email.util');
 const UnauthorizedError = require('../helpers/error/unauthorizedError');
@@ -60,62 +61,46 @@ const loginUser = async (req, res, next) => {
   }
 }
 
-const sendActivationCode = async (req, res, next) => {
+const sendCode = async (req, res, next) => {
   try {
     const {
+      type,
       email
     } = req.body;
   
+    let queryData = ['username'];
+  
+    if(type === 'activate') {
+      queryData.push('isActivated');
+    }
+  
     const userExists =  await Users.findAll({
-      attributes: ['username', 'isActivated'],
+      attributes: queryData,
       where: {
         email: email
       }
     })
-
+  
     if(!userExists) {
       throw new UnauthorizedError('This email doesn\'t belong to an existing account!');
-    } else if(userExists[0].isActivated) {
+    } else if (type === 'activate' && userExists[0].isActivated) {
       throw new UnauthorizedError('This account is already active!');
     } else {
       const username = userExists[0].username;
-      const data = `activate;${username};${Math.floor(Date.now() / 1000 / 60)}`;
+      const data = `${type};${username};${Math.floor(Date.now() / 1000 / 60)}`;
       const encrypted = encryptData(data);
-      const activationCode = `${encrypted.iv}.${encrypted.data}`;
-
-      await sendEmail(activationEmailTemplate(email, username, activationCode));
-
-      res.send(`Activation code was sent successfuly to ${email}`);
-    }
-  } catch (error) {
-    next(error);
-  }
-}
-
-const sendResetCode = async(req, res, next) => {
-  try {
-    const {
-      email
-    } = req.body;
+      const code = `${encrypted.iv}.${encrypted.data}`;
   
-    const userExists =  await Users.findAll({
-      attributes: ['username'],
-      where: {
-        email: email
+      switch(type) {
+        case 'activate':
+          await sendEmail(activationEmailTemplate(email, username, code));
+          res.send(`Activation code was sent successfuly to ${email}`);
+          break;
+        case 'reset':
+          await sendEmail(resetEmailTemplate(email, username, code));
+          res.send(`Reset password code was sent successfuly to ${email}`);
+          break;
       }
-    })
-
-    if(!userExists) {
-      throw new UnauthorizedError('This email doesn\'t belong to an existing account!');
-    } else {
-      const username = userExists[0].username;
-      const data = `reset;${username};${Math.floor(Date.now() / 1000 / 60)}`;
-      const encrypted = encryptData(data);
-      const activationCode = `${encrypted.iv}.${encrypted.data}`;
-
-      await sendEmail(resetEmailTemplate(email, username, activationCode));
-
-      res.send(`Reset password code was sent successfuly to ${email}`);
     }
   } catch (error) {
     next(error);
@@ -126,15 +111,9 @@ const activateAccount = async (req, res, next) => {
   try {
     const code = req.body.code || req.query.code;
 
-    const [ iv, data ] = code.split('.');
+    const [ action, username, expiration ] = processDecrypted(code);
 
-    const decrypted = decryptData({
-      iv: iv,
-      data: data
-    })
-
-    const [ action, username, expiration ] = decrypted.split(';');
-    const now = Math.floor(Date.now() / 1000 / 60);
+    const now = currentMinutes();
     
 
     if(!action || action !== 'activate' || !username || !expiration || now - expiration > 60 ) {
@@ -162,10 +141,39 @@ const activateAccount = async (req, res, next) => {
   }
 }
 
+const allowResetPassword = async (req, res, next) => {
+  try {
+    const code = req.body.code || req.query.code;
+
+    const [ action, username, expiration ] = processDecrypted(code);
+
+    const now = currentMinutes();
+
+    if(!action || action !== 'reset' || !username || !expiration || now - expiration > 60 ) {
+      throw new UnauthorizedError('Reset code is not valid or expired!');
+    }
+
+    const userExists =  await Users.findAll({
+      where: {
+        username: username
+      }
+    })
+
+    if(!userExists) {
+      throw new InternalError('Reset password failed: Internal Server Error.')
+    }
+
+    res.send(`Authorized reset for ${username}`);
+
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   insertUser,
   loginUser,
-  sendActivationCode,
-  sendResetCode,
-  activateAccount
+  sendCode,
+  activateAccount,
+  allowResetPassword
 }

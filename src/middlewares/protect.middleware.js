@@ -7,8 +7,9 @@ const protectRoute = async (req, res, next) => {
       '/login', 
       '/register', 
       '/sendActivationCode', 
+      '/sendResetCode',
       '/activateAccount',
-      '/forgot'
+      '/authorizeReset'
     ];
 
     if(!notProtected.includes(req.baseUrl + req.path)) {

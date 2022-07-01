@@ -3,7 +3,7 @@ const BadRequestError = require('../helpers/error/badRequestError');
 const RegisterSchema = require('../schemas/register.schema');
 const LoginSchema = require('../schemas/login.schema');
 const CodeSchema = require('../schemas/code.schema');
-const EmailSchema = require('../schemas/email.schema');
+const ActivateResetSchema = require('../schemas/sendActivateResetCode.schema');
 
 const validateRegister = (req, res, next) => {
     const {
@@ -65,17 +65,17 @@ const validateCode = (req, res, next) => {
    next()
 }
 
-const validateEmail = (req, res, next) => {
-  const { email } =  req.body;
+const validateActivateReset = (req, res, next) => {
+  const { type, email } =  req.body;
 
-  if(!email) {
+  if(!type || !email) {
     throw new BadRequestError('Request error: No data received.');
   }
 
-  const validationResult = EmailSchema.validate({ email });
+  const validationResult = ActivateResetSchema.validate({ type, email });
 
   if(validationResult.error !== undefined) {
-    throw new UnauthorizedError('This email address is not valid!');
+    throw new UnauthorizedError('This email address or request is not valid!');
   }
 
    next()
@@ -85,5 +85,5 @@ module.exports = {
   validateRegister,
   validateLogin,
   validateCode,
-  validateEmail
+  validateActivateReset
 }
