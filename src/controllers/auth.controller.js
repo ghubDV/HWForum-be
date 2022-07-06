@@ -20,9 +20,9 @@ const insertUser = async (req, res, next) => {
       hashedPassword: generateHashedPassword(password)
     }
 
-    const response = await Users.create(user);
+    await Users.create(user);
 
-    res.send(response.toJSON());
+    res.send({message: 'Account was successfully created!'});
   } catch (error) {
     next(new UnauthorizedError(error.errors[0].message));
   }
