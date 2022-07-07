@@ -11,7 +11,10 @@ const error = require('./middlewares/error.midddleware')
 const app = express();
 
 app.use(morgan('tiny'));
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
 app.use(bodyParser.json());
 
 routes(app)

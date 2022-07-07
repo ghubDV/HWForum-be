@@ -10,7 +10,7 @@ module.exports = (app) => {
     insertUser  
   )
 
-  app.get('/login',
+  app.post('/login',
     validateLogin,
     loginUser
   )

@@ -54,7 +54,7 @@ const loginUser = async (req, res, next) => {
     } else {
       const accessToken = generateAccessToken(user.username);
       res.cookie('authorization', accessToken, { httpOnly: true });
-      res.send(`Logged in as ${user.username}!`);
+      res.send({ message: `Logged in as ${user.username}!` });
     }
   } catch (error) {
     next(error);
