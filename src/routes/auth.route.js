@@ -1,6 +1,6 @@
 const { validateRegister, validateLogin, validateCode, validateActivateReset } = require('../middlewares/auth.middleware');
 const { protectRoute } = require('../middlewares/protect.middleware');
-const { insertUser, loginUser, sendCode, activateAccount, allowResetPassword } = require('../controllers/auth.controller');
+const { insertUser, loginUser, sendCode, activateAccount, allowResetPassword, checkToken } = require('../controllers/auth.controller');
 
 module.exports = (app) => {
   app.all('*', protectRoute)
@@ -33,6 +33,10 @@ module.exports = (app) => {
   app.get('/authorizeReset', 
     validateCode,
     allowResetPassword
+  )
+
+  app.get('/checkAuthorization',
+    checkToken
   )
 
   app.get('/protected',

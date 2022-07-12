@@ -1,5 +1,5 @@
 const { Users } = require('../models');
-const { generateHashedPassword, checkPassword, generateAccessToken, encryptData, processDecrypted } = require('../helpers/auth/auth.helper');
+const { generateHashedPassword, checkPassword, generateAccessToken, authorizeAccessToken, encryptData, processDecrypted } = require('../helpers/auth/auth.helper');
 const { currentMinutes } = require('../helpers/date/date.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
 const { activationEmailTemplate, resetEmailTemplate } = require('../utils/email.util');
@@ -54,7 +54,7 @@ const loginUser = async (req, res, next) => {
     } else {
       const accessToken = generateAccessToken(user.username);
       res.cookie('authorization', accessToken, { httpOnly: true });
-      res.send({ message: `Logged in as ${user.username}!` });
+      res.send({ message: `Logged in as ${user.username}!`});
     }
   } catch (error) {
     next(error);
@@ -170,10 +170,23 @@ const allowResetPassword = async (req, res, next) => {
   }
 }
 
+const checkToken = (req, res, next) => {
+  try {
+    const decoded = authorizeAccessToken(req.cookies.authorization);
+  
+    if(decoded) {
+      res.send({ authorized: true, username: decoded.username });
+    }
+  } catch (error) {
+    next(new UnauthorizedError('You have to log in to access this!'));
+  }
+}
+
 module.exports = {
   insertUser,
   loginUser,
   sendCode,
   activateAccount,
-  allowResetPassword
+  allowResetPassword,
+  checkToken
 }

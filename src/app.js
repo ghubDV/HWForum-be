@@ -7,6 +7,7 @@ const config = require('./configs');
 const {sequelize} = require('./models');
 const routes = require('./routes');
 const error = require('./middlewares/error.midddleware')
+const { parseCookies } = require('./middlewares/utility.middleware');
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(bodyParser.json());
+
+app.use(parseCookies);
 
 routes(app)
 

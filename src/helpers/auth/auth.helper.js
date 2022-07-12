@@ -17,6 +17,11 @@ const generateAccessToken = (username) => {
   return jwt.sign({ username }, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
 }
 
+const authorizeAccessToken = (token) => {
+  const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+  return decoded;
+}
+
 const encryptData = (data) => {
   const iv = crypto.randomBytes(16);
 
@@ -55,6 +60,7 @@ module.exports = {
   generateHashedPassword,
   checkPassword,
   generateAccessToken,
+  authorizeAccessToken,
   encryptData,
   decryptData,
   processDecrypted
