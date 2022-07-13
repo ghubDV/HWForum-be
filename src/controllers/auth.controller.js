@@ -54,7 +54,7 @@ const loginUser = async (req, res, next) => {
     } else {
       const accessToken = generateAccessToken(user.username);
       res.cookie('authorization', accessToken, { httpOnly: true });
-      res.send({ message: `Logged in as ${user.username}!`});
+      res.send({ message: `Logged in as ${user.username}!`, username: user.username});
     }
   } catch (error) {
     next(error);
@@ -134,7 +134,7 @@ const activateAccount = async (req, res, next) => {
       throw new InternalError('Activation failed: activation code is not valid or the account is already active.')
     }
 
-    res.send('Your account was activated successfully!');
+    res.send({ message: 'Your account was activated successfully!' });
 
   } catch (error) {
     next(error);
