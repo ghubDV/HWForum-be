@@ -7,7 +7,8 @@ module.exports = (app) => {
 
   app.post('/register', 
     validateRegister,
-    insertUser  
+    insertUser,
+    sendCode
   )
 
   app.post('/login',
@@ -15,12 +16,12 @@ module.exports = (app) => {
     loginUser
   )
 
-  app.get('/sendActivationCode',
+  app.post('/sendActivationCode',
     validateActivateReset,
     sendCode
   )
 
-  app.get('/sendResetCode', 
+  app.post('/sendResetCode', 
     validateActivateReset,
     sendCode
   )

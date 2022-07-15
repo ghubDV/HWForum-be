@@ -22,7 +22,10 @@ const insertUser = async (req, res, next) => {
 
     await Users.create(user);
 
-    res.send({message: 'Account was successfully created!'});
+    req.body.message = `Account was successfully created.\nAn email with the activation code has been sent to ${email}.`;
+    req.body.type = 'activate';
+
+    next()
   } catch (error) {
     next(new UnauthorizedError(error.errors[0].message));
   }
@@ -94,11 +97,11 @@ const sendCode = async (req, res, next) => {
       switch(type) {
         case 'activate':
           await sendEmail(activationEmailTemplate(email, username, code));
-          res.send(`Activation code was sent successfuly to ${email}`);
+          res.send({ message: req.body.message || `Activation code was sent successfuly to ${email}` });
           break;
         case 'reset':
           await sendEmail(resetEmailTemplate(email, username, code));
-          res.send(`Reset password code was sent successfuly to ${email}`);
+          res.send({ message: `Reset password code was sent successfuly to ${email}` });
           break;
       }
     }
@@ -134,7 +137,7 @@ const activateAccount = async (req, res, next) => {
       throw new InternalError('Activation failed: activation code is not valid or the account is already active.')
     }
 
-    res.send({ message: 'Your account was activated successfully!' });
+    res.send({ message: 'Account activated successfully. You can Log in!' });
 
   } catch (error) {
     next(error);
