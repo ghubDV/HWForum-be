@@ -6,10 +6,12 @@ const emails = {
       subject: `Your activation code, ${username}`,
       text: 
         `Hey ${username},
-         Your activation code is ${code}`,
+         Your activation code is ${code}
+         To activate your account go here ${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}`,
       html:
         `Hey <b>${username}</b>, <br>
-         Your activation code is <b>${code}</b>`
+         Your activation code is <b>${code}</b>. <br>
+         To activate your account follow this <a href="${process.env.MODE === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}"><b>LINK</b></a>`
     }
   },
 

@@ -3,6 +3,8 @@ const express= require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const session = require('express-session');
+const sessionStore = require('connect-session-sequelize')(session.Store)
 const config = require('./configs');
 const {sequelize} = require('./models');
 const routes = require('./routes');
@@ -17,8 +19,28 @@ app.use(cors({
   credentials: true
 }));
 app.use(bodyParser.json());
-
 app.use(parseCookies);
+
+const db = new sessionStore({
+  db: sequelize,
+  checkExpirationInterval: config.sessClean,
+  expiration: config.sessExp
+})
+
+app.use(
+  session({
+    name: config.sessName,
+    secret: config.sessSecret,
+    cookie: {
+      maxAge:config.sessExp,
+      sameSite: 'strict',
+      secure: config.env === 'production'
+    },
+    resave: false,
+    saveUninitialized: false,
+    store: db
+  })
+);
 
 routes(app)
 
@@ -34,7 +56,7 @@ process.on('uncaughtException', err => {
   }
  })
 
-sequelize.sync()
+db.sync()
   .then(() => {
     app.listen(config.port, () => {
       console.log(`listening on ${config.port}`);

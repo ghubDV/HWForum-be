@@ -1,5 +1,5 @@
-const UnauthorizedError = require('../helpers/error/unauthorizedError');
 const BadRequestError = require('../helpers/error/badRequestError');
+const { parseJOIError } = require('../helpers/error/error.helper');
 const RegisterSchema = require('../schemas/register.schema');
 const LoginSchema = require('../schemas/login.schema');
 const CodeSchema = require('../schemas/code.schema');
@@ -23,7 +23,7 @@ const validateRegister = (req, res, next) => {
     const validationResult = RegisterSchema.validate(user);
   
     if(validationResult.error !== undefined) {
-      throw new UnauthorizedError(validationResult.error.details[0].message);
+      throw new BadRequestError(parseJOIError(validationResult.error));
     }
 
     next()
@@ -43,7 +43,7 @@ const validateLogin = (req, res, next) => {
   const validationResult = LoginSchema.validate(user);
 
   if(validationResult.error !== undefined) {
-    throw new UnauthorizedError(validationResult.error.details[0].message);
+    throw new BadRequestError(parseJOIError(validationResult.error));
   }
 
   next();
@@ -59,7 +59,7 @@ const validateCode = (req, res, next) => {
   const validationResult = CodeSchema.validate({ code });
 
   if(validationResult.error !== undefined) {
-    throw new UnauthorizedError('Code is not valid!');
+    throw new BadRequestError('Code is not valid!');
   }
 
    next()
@@ -75,7 +75,7 @@ const validateActivateReset = (req, res, next) => {
   const validationResult = ActivateResetSchema.validate({ type, email });
 
   if(validationResult.error !== undefined) {
-    throw new UnauthorizedError('This email address or request is not valid!');
+    throw new BadRequestError('This email address or request is not valid!');
   }
 
    next()

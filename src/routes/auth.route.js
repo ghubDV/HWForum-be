@@ -1,10 +1,7 @@
 const { validateRegister, validateLogin, validateCode, validateActivateReset } = require('../middlewares/auth.middleware');
-const { protectRoute } = require('../middlewares/protect.middleware');
-const { insertUser, loginUser, sendCode, activateAccount, allowResetPassword, checkToken } = require('../controllers/auth.controller');
+const { insertUser, loginUser, logoutUser, sendCode, activateAccount, allowResetPassword, checkAuthenthication } = require('../controllers/auth.controller');
 
 module.exports = (app) => {
-  app.all('*', protectRoute)
-
   app.post('/register', 
     validateRegister,
     insertUser,
@@ -14,6 +11,10 @@ module.exports = (app) => {
   app.post('/login',
     validateLogin,
     loginUser
+  )
+
+  app.delete('/logout',
+    logoutUser
   )
 
   app.post('/sendActivationCode',
@@ -36,8 +37,8 @@ module.exports = (app) => {
     allowResetPassword
   )
 
-  app.get('/checkAuthorization',
-    checkToken
+  app.get('/checkAuthenthication',
+    checkAuthenthication
   )
 
   app.get('/protected',

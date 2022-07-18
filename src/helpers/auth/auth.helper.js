@@ -1,6 +1,5 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const SALT_ROUNDS = 10;
 
 const generateHashedPassword = (password) => {
@@ -11,15 +10,6 @@ const generateHashedPassword = (password) => {
 
 const checkPassword = (password, hashedPassword) => {
   return bcrypt.compareSync(password, hashedPassword);
-}
-
-const generateAccessToken = (username) => {
-  return jwt.sign({ username }, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
-}
-
-const authorizeAccessToken = (token) => {
-  const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
-  return decoded;
 }
 
 const encryptData = (data) => {
@@ -59,8 +49,6 @@ const processDecrypted = (code) => {
 module.exports = {
   generateHashedPassword,
   checkPassword,
-  generateAccessToken,
-  authorizeAccessToken,
   encryptData,
   decryptData,
   processDecrypted

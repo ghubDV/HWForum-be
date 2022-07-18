@@ -1,9 +1,10 @@
 const { Users } = require('../models');
-const { generateHashedPassword, checkPassword, generateAccessToken, authorizeAccessToken, encryptData, processDecrypted } = require('../helpers/auth/auth.helper');
+const { generateHashedPassword, checkPassword, encryptData, processDecrypted } = require('../helpers/auth/auth.helper');
 const { currentMinutes } = require('../helpers/date/date.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
-const { activationEmailTemplate, resetEmailTemplate } = require('../utils/email.util');
+const { activationEmailTemplate, resetEmailTemplate } = require('../utils/emailTemplates.util');
 const UnauthorizedError = require('../helpers/error/unauthorizedError');
+const BadRequestError = require('../helpers/error/badRequestError');
 const InternalError = require('../helpers/error/internalError');
 
 const insertUser = async (req, res, next) => {
@@ -27,7 +28,7 @@ const insertUser = async (req, res, next) => {
 
     next()
   } catch (error) {
-    next(new UnauthorizedError(error.errors[0].message));
+    next(new BadRequestError(error.errors[0].message));
   }
 }
 
@@ -43,24 +44,38 @@ const loginUser = async (req, res, next) => {
       password
     }
     
-    const getCredentials = await Users.findAll({
-      attributes: ['username', 'hashedPassword', 'isActivated'],
+    const getUser = await Users.findOne({
+      attributes: ['id', 'username', 'hashedPassword', 'isActivated'],
       where: {
         username: user.username
       }
     })
 
-    if(getCredentials.length === 0 || !checkPassword(user.password, getCredentials[0].hashedPassword)) {
-      throw new UnauthorizedError('Wrong user credentials!')
-    } else if (!getCredentials[0].isActivated) {
-      throw new UnauthorizedError('Account is not activated!')
+    if(!getUser || !checkPassword(user.password, getUser.hashedPassword)) {
+      throw new BadRequestError('Wrong user credentials!')
+    } else if (!getUser.isActivated) {
+      throw new BadRequestError('Account is not activated!')
     } else {
-      const accessToken = generateAccessToken(user.username);
-      res.cookie('authorization', accessToken, { httpOnly: true });
+      req.session.user = {
+        id: getUser.id,
+        username: getUser.username
+      };
       res.send({ message: `Logged in as ${user.username}!`, username: user.username});
     }
   } catch (error) {
     next(error);
+  }
+}
+
+const logoutUser = (req, res) => {
+  const {
+    user
+  } = req.session;
+
+  if(user) {
+    res.clearCookie(process.env.SESSION_NAME);
+    req.session.destroy();
+    res.end();
   }
 }
 
@@ -77,19 +92,19 @@ const sendCode = async (req, res, next) => {
       queryData.push('isActivated');
     }
   
-    const userExists =  await Users.findAll({
+    const user =  await Users.findOne({
       attributes: queryData,
       where: {
         email: email
       }
     })
   
-    if(!userExists) {
-      throw new UnauthorizedError('This email doesn\'t belong to an existing account!');
-    } else if (type === 'activate' && userExists[0].isActivated) {
-      throw new UnauthorizedError('This account is already active!');
+    if(!user) {
+      throw new BadRequestError('This email doesn\'t belong to an existing account!');
+    } else if (type === 'activate' && user.isActivated) {
+      throw new BadRequestError('This account is already active!');
     } else {
-      const username = userExists[0].username;
+      const username = user.username;
       const data = `${type};${username};${Math.floor(Date.now() / 1000 / 60)}`;
       const encrypted = encryptData(data);
       const code = `${encrypted.iv}.${encrypted.data}`;
@@ -120,7 +135,7 @@ const activateAccount = async (req, res, next) => {
     
 
     if(!action || action !== 'activate' || !username || !expiration || now - expiration > 60 ) {
-      throw new UnauthorizedError('Activation code is not valid or expired!');
+      throw new BadRequestError('Activation code is not valid or expired!');
     }
 
     const activationResult = await Users.update({ 
@@ -153,16 +168,16 @@ const allowResetPassword = async (req, res, next) => {
     const now = currentMinutes();
 
     if(!action || action !== 'reset' || !username || !expiration || now - expiration > 60 ) {
-      throw new UnauthorizedError('Reset code is not valid or expired!');
+      throw new BadRequestError('Reset code is not valid or expired!');
     }
 
-    const userExists =  await Users.findAll({
+    const user =  await Users.findOne({
       where: {
         username: username
       }
     })
 
-    if(!userExists) {
+    if(!user) {
       throw new InternalError('Reset password failed: Internal Server Error.')
     }
 
@@ -173,23 +188,31 @@ const allowResetPassword = async (req, res, next) => {
   }
 }
 
-const checkToken = (req, res, next) => {
-  try {
-    const decoded = authorizeAccessToken(req.cookies.authorization);
-  
-    if(decoded) {
-      res.send({ authorized: true, username: decoded.username });
-    }
-  } catch (error) {
-    next(new UnauthorizedError('You have to log in to access this!'));
+const checkAuthenthication = (req, res, next) => {
+  if(req.guardSkip) {
+    next();
+  }
+
+  const {
+    user
+  } = req.session;
+
+  if(user) {
+    res.send({ authorized: true, username: user.username });
+  }
+
+  if(!user) {
+    res.clearCookie(process.env.SESSION_NAME);
+    throw new UnauthorizedError('You have to log in to access this!');
   }
 }
 
 module.exports = {
   insertUser,
   loginUser,
+  logoutUser,
   sendCode,
   activateAccount,
   allowResetPassword,
-  checkToken
+  checkAuthenthication
 }
