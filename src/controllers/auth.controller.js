@@ -76,6 +76,8 @@ const logoutUser = (req, res) => {
     res.clearCookie(process.env.SESSION_NAME);
     req.session.destroy()
     res.end();
+  } else {
+    res.end();
   }
 }
 
@@ -107,7 +109,7 @@ const sendCode = async (req, res, next) => {
       const username = user.username;
       const data = `${type};${username};${currentMinutes()}`;
       const encrypted = encryptData(data);
-      const code = `${encrypted.iv}.${encrypted.data}`;
+      const code = `${encrypted.iv}${encrypted.data}`;
   
       switch(type) {
         case 'activate':

@@ -34,7 +34,7 @@ const decryptData = ({ iv, data }) => {
 }
 
 const processDecrypted = (code) => {
-  const [ iv, data ] = code.split('.');
+  const [iv, data] = [code.slice(0,32), code.slice(32)];
 
   const decrypted = decryptData({
     iv: iv,
