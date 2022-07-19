@@ -1,22 +1,22 @@
 const Joi = require('joi');
 
 const schema = Joi.object({
-  old_password: 
+  password: 
     Joi.string()
-       .min(8)
-       .max(32)
-       .pattern(new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,32}$')),
-
-  new_password: 
-    Joi.string()
-        .min(8)
-        .max(32)
         .pattern(new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,32}$'))
-        .invalid(Joi.ref('old_password')),
+        .messages({
+          'string.pattern.base': 
+            `Password requirements:\n1.Password must be between 8-32 characters\n2.Password must contain uppercase and lowercase letters`
+        }),
   
-  confirm_new_password:
-    Joi.ref('new_password'),
+  confirm_password:
+    Joi
+    .any()
+    .valid(Joi.ref('password'))
+    .messages({
+      'any.only': 'Passwords must match'
+    }),
 })
-.with('new_password', 'confirm_new_password');
+.with('password', 'confirm_password');
 
 module.exports = schema;

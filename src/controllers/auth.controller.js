@@ -1,7 +1,7 @@
 const { Users } = require('../models');
-const { generateHashedPassword, checkPassword, encryptData, processDecrypted } = require('../helpers/auth/auth.helper');
-const { currentMinutes } = require('../helpers/date/date.helper');
+const { generateHashedPassword, checkPassword, encryptData } = require('../helpers/auth/auth.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
+const { currentMinutes } = require('../helpers/date/date.helper');
 const { activationEmailTemplate, resetEmailTemplate } = require('../utils/emailTemplates.util');
 const UnauthorizedError = require('../helpers/error/unauthorizedError');
 const BadRequestError = require('../helpers/error/badRequestError');
@@ -74,7 +74,7 @@ const logoutUser = (req, res) => {
 
   if(user) {
     res.clearCookie(process.env.SESSION_NAME);
-    req.session.destroy();
+    req.session.destroy()
     res.end();
   }
 }
@@ -105,7 +105,7 @@ const sendCode = async (req, res, next) => {
       throw new BadRequestError('This account is already active!');
     } else {
       const username = user.username;
-      const data = `${type};${username};${Math.floor(Date.now() / 1000 / 60)}`;
+      const data = `${type};${username};${currentMinutes()}`;
       const encrypted = encryptData(data);
       const code = `${encrypted.iv}.${encrypted.data}`;
   
@@ -127,16 +127,9 @@ const sendCode = async (req, res, next) => {
 
 const activateAccount = async (req, res, next) => {
   try {
-    const code = req.body.code || req.query.code;
-
-    const [ action, username, expiration ] = processDecrypted(code);
-
-    const now = currentMinutes();
-    
-
-    if(!action || action !== 'activate' || !username || !expiration || now - expiration > 60 ) {
-      throw new BadRequestError('Activation code is not valid or expired!');
-    }
+    const {
+      username
+    } = req.body;
 
     const activationResult = await Users.update({ 
       isActivated: true
@@ -159,17 +152,11 @@ const activateAccount = async (req, res, next) => {
   }
 }
 
-const allowResetPassword = async (req, res, next) => {
+const checkResetCode = async (req, res, next) => {
   try {
-    const code = req.body.code || req.query.code;
-
-    const [ action, username, expiration ] = processDecrypted(code);
-
-    const now = currentMinutes();
-
-    if(!action || action !== 'reset' || !username || !expiration || now - expiration > 60 ) {
-      throw new BadRequestError('Reset code is not valid or expired!');
-    }
+    const {
+      username
+    } = req.body;
 
     const user =  await Users.findOne({
       where: {
@@ -181,12 +168,45 @@ const allowResetPassword = async (req, res, next) => {
       throw new InternalError('Reset password failed: Internal Server Error.')
     }
 
-    res.send(`Authorized reset for ${username}`);
+    res.send({ message: `Change your password`, user: username });
 
   } catch (error) {
     next(error);
   }
 }
+
+const resetPassword = async (req, res, next) => {
+  try { 
+    const {
+      username,
+      password,
+    } = req.body;
+  
+    if(!username || !password) {
+      throw new BadRequestError('No data received!')
+    }
+
+    const resetPassword = await Users.update({ 
+      hashedPassword: generateHashedPassword(password)
+    },
+    {
+      where: {
+        username: username
+      }
+    });
+
+    if(resetPassword[0] === 0) {
+      throw new InternalError('Reset password failed: Internal Server Error.')
+    }
+
+    res.send({ message: `Password was changed successfully` });
+
+  } catch(error) {
+    next(error);
+  }
+}
+
+
 
 const checkAuthenthication = (req, res, next) => {
   if(req.guardSkip) {
@@ -213,6 +233,7 @@ module.exports = {
   logoutUser,
   sendCode,
   activateAccount,
-  allowResetPassword,
+  checkResetCode,
+  resetPassword,
   checkAuthenthication
 }

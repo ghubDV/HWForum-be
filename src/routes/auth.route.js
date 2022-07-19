@@ -1,7 +1,48 @@
-const { validateRegister, validateLogin, validateCode, validateActivateReset } = require('../middlewares/auth.middleware');
-const { insertUser, loginUser, logoutUser, sendCode, activateAccount, allowResetPassword, checkAuthenthication } = require('../controllers/auth.controller');
+const {
+  validateRegister,
+  validateLogin,
+  validateCode,
+  validateActivateReset,
+  validateResetPassword
+} = require('../middlewares/auth.middleware');
+
+const {
+  insertUser,
+  loginUser,
+  logoutUser,
+  sendCode,
+  activateAccount,
+  checkResetCode,
+  checkAuthenthication,
+  resetPassword 
+} = require('../controllers/auth.controller');
 
 module.exports = (app) => {
+
+  app.delete('/logout',
+    logoutUser
+  )
+
+  app.get('/checkAuthenthication',
+    checkAuthenthication
+  )
+
+  app.get('/protected',
+    (req, res) => {
+      res.send(`${req.username} authorized on ${req.url}`)
+    }
+  )
+
+  app.patch('/activateAccount',
+    validateCode,
+    activateAccount
+  )
+
+  app.patch('/resetPassword',
+    validateResetPassword,
+    resetPassword
+  )
+
   app.post('/register', 
     validateRegister,
     insertUser,
@@ -13,37 +54,13 @@ module.exports = (app) => {
     loginUser
   )
 
-  app.delete('/logout',
-    logoutUser
-  )
-
-  app.post('/sendActivationCode',
+  app.post('/sendCode',
     validateActivateReset,
     sendCode
   )
 
-  app.post('/sendResetCode', 
-    validateActivateReset,
-    sendCode
-  )
-
-  app.patch('/activateAccount',
+  app.post('/checkReset', 
     validateCode,
-    activateAccount
-  )
-
-  app.get('/authorizeReset', 
-    validateCode,
-    allowResetPassword
-  )
-
-  app.get('/checkAuthenthication',
-    checkAuthenthication
-  )
-
-  app.get('/protected',
-    (req, res) => {
-      res.send(`${req.username} authorized on ${req.url}`)
-    }
+    checkResetCode
   )
 }
