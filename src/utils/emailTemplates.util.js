@@ -7,11 +7,11 @@ const emails = {
       text: 
         `Hey ${username},
          Your activation code is ${code}
-         To activate your account go here ${process.env.MODE === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}`,
+         To activate your account go here ${process.env.NODE_ENV === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}`,
       html:
         `Hey <b>${username}</b>, <br>
          Your activation code is <b>${code}</b>. <br>
-         To activate your account follow this <a href="${process.env.MODE === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}"><b>LINK</b></a>`
+         To activate your account follow this <a href="${process.env.NODE_ENV === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}"><b>LINK</b></a>`
     }
   },
 
@@ -23,11 +23,11 @@ const emails = {
       text: 
         `Hey ${username},
          Your password reset code is ${code}
-         To reset your account password go here ${process.env.MODE === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}`,
+         To reset your account password go here ${process.env.NODE_ENV === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/activate?code=${code}`,
       html:
         `Hey <b>${username}</b>, <br>
          Your password reset code is <b>${code}</b> <br>
-         To reset your account password follow this <a href="${process.env.MODE === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/reset?code=${code}"><b>LINK</b></a>`
+         To reset your account password follow this <a href="${process.env.NODE_ENV === "production" ? "https://" : "http://"}${process.env.HOST}:${process.env.PORT_CLIENT}/reset?code=${code}"><b>LINK</b></a>`
     }
   }
 }

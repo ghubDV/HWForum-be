@@ -219,6 +219,7 @@ const checkAuthenthication = (req, res, next) => {
     user
   } = req.session;
 
+
   if(user) {
     res.send({ authorized: true, username: user.username });
   }
