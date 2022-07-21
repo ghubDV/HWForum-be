@@ -7,7 +7,12 @@ const schema = Joi.object({
        .required(),
   email: 
     Joi.string()
-       .email({ minDomainSegments: 2, tlds: { allow: true } }),
+       .required()
+       .email({ minDomainSegments: 2, tlds: { allow: true } })
+       .messages({
+        'string.email': 'You must provide a valid email address',
+        'string.empty': 'Email cannot be empty!'
+       }),
   
 })
 

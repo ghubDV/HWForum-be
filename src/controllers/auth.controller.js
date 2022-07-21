@@ -170,7 +170,7 @@ const checkResetCode = async (req, res, next) => {
       throw new InternalError('Reset password failed: Internal Server Error.')
     }
 
-    res.send({ message: `Change your password`, user: username });
+    res.send({ message: `You can reset your password!`, user: username });
 
   } catch (error) {
     next(error);

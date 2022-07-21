@@ -32,7 +32,7 @@ app.use(
     rolling: true,
     cookie: {
       maxAge: config.sessExp,
-      sameSite: 'strict',
+      sameSite: true,
       secure: config.env === 'production'
     },
     store: new sessionStore({
