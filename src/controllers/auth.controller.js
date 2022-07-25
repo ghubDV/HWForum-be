@@ -28,7 +28,7 @@ const insertUser = async (req, res, next) => {
 
     next()
   } catch (error) {
-    next(new BadRequestError(error.errors[0].message));
+    next(error);
   }
 }
 
@@ -221,7 +221,16 @@ const checkAuthenthication = (req, res, next) => {
 
 
   if(user) {
-    res.send({ authorized: true, username: user.username });
+    if(req.guard) {
+      req.auth = {
+        authorized: true,
+        user: {
+          ...user
+        }
+      }
+    } else {
+      res.send({ authorized: true, username: user.username });
+    }
   }
 
   if(!user) {

@@ -10,8 +10,16 @@ function logError (err) {
  }
  
  function returnErrorMiddleWare (err, req, res, next) {
-  res.status(err.status || 500).send(err)
-  next(err)
+  try {
+    //db error detected
+    if(err.errors) {
+      res.status(500).send(err.errors);
+    } else {
+      res.status(err.status || 500).send([err])
+    }
+  } catch {
+    next(err);
+  }
  }
  
  function isOperationalError(err) {

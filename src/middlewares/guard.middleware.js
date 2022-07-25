@@ -1,7 +1,8 @@
 const guardRoute = (req, res, next) => {
-  const protected = ['/protected'];
+  const protected = ['/protected', '/createProfile'];
 
   if(protected.includes(req.baseUrl + req.path)) {
+    req.guard = true;
     next();
   }
 
