@@ -16,8 +16,21 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Profiles.init({
-    userID: DataTypes.INTEGER,
-    profileName: DataTypes.STRING,
+    userID: {
+      type: DataTypes.INTEGER,
+      unique: {
+        args: true,
+        msg:'This account already has a profile'
+      }
+    },
+    profileName: {
+      type: DataTypes.STRING,
+      unique: {
+        args: true,
+        msg:'This profile name is taken!'
+      }
+    },
+    isPublic: DataTypes.BOOLEAN,
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING
   }, {

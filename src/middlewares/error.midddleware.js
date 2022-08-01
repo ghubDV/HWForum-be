@@ -1,7 +1,8 @@
 const BaseError = require('../helpers/error/baseError');
+const { parseDBErrors } = require('../helpers/error/error.helper');
 
 function logError (err) {
-  console.error(err)
+  console.error(err);
  }
  
  function logErrorMiddleware (err, req, res, next) {
@@ -13,7 +14,7 @@ function logError (err) {
   try {
     //db error detected
     if(err.errors) {
-      res.status(500).send(err.errors);
+      res.status(500).send(parseDBErrors(err.errors));
     } else {
       res.status(err.status || 500).send([err])
     }
@@ -24,9 +25,9 @@ function logError (err) {
  
  function isOperationalError(err) {
   if (err instanceof BaseError) {
-  return err.isOperational
+    return err.isOperational;
   }
-  return false
+  return false;
  }
  
  module.exports = {

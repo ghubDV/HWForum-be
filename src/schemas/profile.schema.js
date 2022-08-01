@@ -8,6 +8,7 @@ const schema = Joi.object({
        .max(25)
        .messages({
         'string.base': 'Your profile name should contain only letters and numbers',
+        'string.empty': 'Profile name cannot be empty',
         'string.min': 'Your profile name must have at least 3 characters',
         'string.max': 'Your profile name must be less than 25 characters',
        }),

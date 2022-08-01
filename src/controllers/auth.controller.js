@@ -219,7 +219,6 @@ const checkAuthenthication = (req, res, next) => {
     user
   } = req.session;
 
-
   if(user) {
     if(req.guard) {
       req.auth = {

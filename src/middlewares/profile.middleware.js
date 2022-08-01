@@ -11,10 +11,6 @@ const validateProfile = (req, res, next) => {
 
   const validationResult = ProfileSchema.validate({ profileName, firstName, lastName });
 
-  if(!profileName) {
-    throw new BadRequestError('No data received!');
-  }
-
   if(validationResult.error !== undefined) {
     throw new BadRequestError(parseJOIError(validationResult.error));
   }
