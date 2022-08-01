@@ -6,6 +6,7 @@ const { activationEmailTemplate, resetEmailTemplate } = require('../utils/emailT
 const UnauthorizedError = require('../helpers/error/unauthorizedError');
 const BadRequestError = require('../helpers/error/badRequestError');
 const InternalError = require('../helpers/error/internalError');
+const ForbiddenError = require('../helpers/error/forbiddenError');
 
 const insertUser = async (req, res, next) => {
   try {
@@ -234,6 +235,9 @@ const checkAuthenthication = (req, res, next) => {
 
   if(!user) {
     res.clearCookie(process.env.SESSION_NAME);
+    if(req.guard) {
+      throw new ForbiddenError('Access not authorized');
+    }
     throw new UnauthorizedError('You have to log in to access this!');
   }
 }
