@@ -1,8 +1,8 @@
 const { Profiles } = require('../models');
+const InternalError = require('../helpers/error/internalError');
 
 const createProfile = async (req, res, next) => {
   try {
-    console.log('createProfile')
     const {
       profileName,
       firstName,
@@ -21,8 +21,6 @@ const createProfile = async (req, res, next) => {
     if(profile.isPublic) {
       profile.isPublic = true;
     }
-
-    console.log(profile);
   
     await Profiles.create(profile);
   
@@ -61,7 +59,54 @@ const getProfile = async(req, res, next) => {
   }
 }
 
+const updateProfile = async (req, res, next) => {
+  try {
+    const {
+      profileName,
+      firstName,
+      lastName,
+      isPublic
+    } = req.body
+  
+    const updatedProfile = {
+      userID: req.auth.user.id,
+      profileName,
+      ...firstName && {firstName},
+      ...lastName && {lastName},
+      ...isPublic && {isPublic}
+    };
+
+    if(updatedProfile.isPublic) {
+      updatedProfile.isPublic = true;
+    } else {
+      updatedProfile.isPublic = false;
+    }
+
+    const result = await Profiles.update(
+      updatedProfile,
+      {
+        where: {
+          userID: updatedProfile.userID
+        }
+      }
+    );
+
+    if(result[0] === 0) {
+      throw new InternalError('Something went horribly wrong when trying to update your profile');
+    }
+
+    res.send({
+      message: 'Profile was updated successfully!'
+    });
+
+
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createProfile,
-  getProfile
+  getProfile,
+  updateProfile
 }
