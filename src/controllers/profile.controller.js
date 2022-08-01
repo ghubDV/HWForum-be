@@ -34,6 +34,34 @@ const createProfile = async (req, res, next) => {
   }
 }
 
+const getProfile = async(req, res, next) => {
+  try {
+    const {
+      id
+    } = req.auth.user;
+  
+    const profile = await Profiles.findOne({
+      attributes: ['profileName', 'firstName', 'lastName', 'isPublic'],
+      where: {
+        userID: id
+      }
+    })
+
+    if(profile) {
+      res.send({ 
+        profile: profile 
+      });
+    } else {
+      res.send({
+        profile: null
+      })
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
-  createProfile
+  createProfile,
+  getProfile
 }
