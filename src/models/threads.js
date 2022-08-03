@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Threads.belongsTo(models.Topics);
       models.Topics.hasMany(Threads);
+
+      Threads.belongsTo(models.Profiles);
+      models.Profiles.hasMany(Threads);
     }
   }
   Threads.init({
