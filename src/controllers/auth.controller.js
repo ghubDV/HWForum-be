@@ -212,34 +212,34 @@ const resetPassword = async (req, res, next) => {
 
 
 const checkAuthenthication = (req, res, next) => {
-  if(req.guardSkip) {
-    next();
-  }
-
-  const {
-    user
-  } = req.session;
-
-  if(user) {
-    if(req.guard) {
-      req.auth = {
-        authorized: true,
-        user: {
-          ...user
+  if(!req.guardSkip) {
+    const {
+      user
+    } = req.session;
+  
+    if(user) {
+      if(req.guard) {
+        req.auth = {
+          authorized: true,
+          user: {
+            ...user
+          }
         }
+      } else {
+        res.send({ authorized: true, username: user.username });
       }
-    } else {
-      res.send({ authorized: true, username: user.username });
+    }
+  
+    if(!user) {
+      res.clearCookie(process.env.SESSION_NAME);
+      if(req.guard) {
+        throw new ForbiddenError('Access not authorized');
+      }
+      throw new UnauthorizedError('You have to log in to access this!');
     }
   }
 
-  if(!user) {
-    res.clearCookie(process.env.SESSION_NAME);
-    if(req.guard) {
-      throw new ForbiddenError('Access not authorized');
-    }
-    throw new UnauthorizedError('You have to log in to access this!');
-  }
+  next();
 }
 
 module.exports = {
