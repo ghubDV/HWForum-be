@@ -237,9 +237,9 @@ const checkAuthenthication = (req, res, next) => {
       }
       throw new UnauthorizedError('You have to log in to access this!');
     }
+  } else {
+    next();
   }
-
-  next();
 }
 
 module.exports = {

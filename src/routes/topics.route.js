@@ -5,11 +5,11 @@ module.exports = (app) => {
     getCategories
   )
 
-  app.post('/getTopics',
+  app.get('/getTopics',
     getTopics
   )
 
-  app.get('/getAll',
+  app.get('/getTopicsCategories',
     getTopicsCategories
   )
 }

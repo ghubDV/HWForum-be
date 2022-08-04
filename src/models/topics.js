@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Topics.belongsTo(models.Categories);
-      models.Categories.hasMany(Topics);
+      models.Categories.hasMany(Topics, {as: 'topics'});
     }
   }
   Topics.init({

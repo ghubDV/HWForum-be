@@ -43,6 +43,7 @@ const getTopicsCategories = async (req, res, next) => {
       attributes: ['name'],
       include: {
         model: Topics,
+        as: 'topics',
         attributes: ['id', 'name']
       }
     })
