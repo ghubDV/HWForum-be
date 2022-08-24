@@ -24,6 +24,9 @@ module.exports = {
       lastName: {
         type: Sequelize.STRING
       },
+      avatar: {
+        type: Sequelize.STRING
+      },
       isPublic: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

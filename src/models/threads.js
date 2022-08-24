@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       Threads.belongsTo(models.Topics);
       models.Topics.hasMany(Threads);
 
-      Threads.belongsTo(models.Profiles);
+      Threads.belongsTo(models.Profiles, {as: 'profile'});
       models.Profiles.hasMany(Threads);
     }
   }

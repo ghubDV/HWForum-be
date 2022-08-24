@@ -1,5 +1,5 @@
 const BadRequestError = require('../helpers/error/badRequestError');
-const { Categories, Topics } = require('../models');
+const { Categories, Profiles, Topics, Threads } = require('../models');
 
 const getCategories = async (req, res, next) => {
   try {
@@ -54,8 +54,44 @@ const getTopicsCategories = async (req, res, next) => {
   }
 }
 
+const getThreadsTopic = async (req, res, next) => {
+  try {
+    const  {
+      topicID
+    } = req.query;
+
+    const topic = await Topics.findOne({
+      attributes: ['name'],
+      where: {
+        id: topicID
+      }
+    })
+
+    const threads = await Threads.findAll({
+      attributes: [['name', 'title'], 'content'],
+      include: {
+        model: Profiles,
+        as: 'profile',
+        attributes: ['id', ['profileName', 'name'], 'avatar']
+      },
+      where: {
+        topicID: topicID
+      }
+    })
+
+    res.send({
+      topic: topic,
+      threads: threads
+    });
+
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getCategories,
   getTopics,
-  getTopicsCategories
+  getTopicsCategories,
+  getThreadsTopic
 }

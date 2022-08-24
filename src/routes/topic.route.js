@@ -1,4 +1,4 @@
-const { getCategories, getTopics, getTopicsCategories } = require("../controllers/topics.controller")
+const { getCategories, getTopics, getTopicsCategories, getThreadsTopic } = require("../controllers/topic.controller")
 
 module.exports = (app) => {
   app.get('/getCategories',
@@ -11,5 +11,9 @@ module.exports = (app) => {
 
   app.get('/getTopicsCategories',
     getTopicsCategories
+  )
+
+  app.get('/getThreadsTopic',
+    getThreadsTopic
   )
 }

@@ -32,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     isPublic: DataTypes.BOOLEAN,
     firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING
+    lastName: DataTypes.STRING,
+    avatar: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Profiles',

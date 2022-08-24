@@ -7,7 +7,8 @@ const createProfile = async (req, res, next) => {
       profileName,
       firstName,
       lastName,
-      isPublic
+      isPublic,
+      avatar
     } = req.body
   
     const profile = {
@@ -15,7 +16,8 @@ const createProfile = async (req, res, next) => {
       profileName,
       ...firstName && {firstName},
       ...lastName && {lastName},
-      ...isPublic && {isPublic}
+      ...isPublic && {isPublic},
+      ...avatar && {avatar}
     };
   
     if(profile.isPublic) {

@@ -14,6 +14,6 @@ module.exports = {
   },
 
   async down (queryInterface) {
-    await queryInterface.removeConstraint('Profiles', 'profile-user-association');
+    await queryInterface.removeIndex('Profiles', 'profile-user-association', {});
   }
 };
