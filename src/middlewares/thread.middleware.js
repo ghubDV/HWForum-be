@@ -4,11 +4,12 @@ const BadRequestError = require('../helpers/error/badRequestError');
 
 const validateThread = (req, res, next) => {
   const {
+    topic,
     name,
     content
   } = req.body;
 
-  const validationResult = ThreadSchema.validate({ name, content });
+  const validationResult = ThreadSchema.validate({ topic, name, content });
 
   if(validationResult.error !== undefined) {
     throw new BadRequestError(parseJOIError(validationResult.error));

@@ -1,5 +1,4 @@
 const BaseError = require('../helpers/error/baseError');
-const { parseDBErrors } = require('../helpers/error/error.helper');
 
 function logError (err) {
   console.error(err);
@@ -13,8 +12,14 @@ function logError (err) {
  function returnErrorMiddleWare (err, req, res, next) {
   try {
     //db error detected
-    if(err.errors) {
-      res.status(500).send(parseDBErrors(err.errors));
+    if(!isOperationalError(err)) {
+      res.status(500).send([
+        {
+          message: "Internal server error!",
+          status: 500,
+          isOperational: false
+        }
+      ]);
     } else {
       res.status(err.status || 500).send([err])
     }

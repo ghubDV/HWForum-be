@@ -68,7 +68,7 @@ const getThreadsTopic = async (req, res, next) => {
     })
 
     const threads = await Threads.findAll({
-      attributes: [['name', 'title'], 'content', 'createdAt'],
+      attributes: ['id', ['name', 'title'], 'content', 'createdAt'],
       include: {
         model: Profiles,
         as: 'profile',
@@ -76,7 +76,10 @@ const getThreadsTopic = async (req, res, next) => {
       },
       where: {
         topicID: topicID
-      }
+      },
+      order: [
+        ['createdAt', 'DESC']
+      ]
     })
 
     res.send({

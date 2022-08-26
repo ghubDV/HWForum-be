@@ -1,6 +1,12 @@
 const Joi = require('joi');
 
 const schema = Joi.object({
+  topic:
+    Joi.number()
+       .required()
+       .messages({
+        'any.required': 'Choosing a topic is required!'
+       }),
   name: 
     Joi.string()
        .required()

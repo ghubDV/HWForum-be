@@ -4,7 +4,7 @@ const BadRequestError = require('../helpers/error/badRequestError');
 const createThread = async (req, res, next) => {
   try {
     const {
-      topicID,
+      topic,
       name,
       content
     } = req.body;
@@ -20,14 +20,14 @@ const createThread = async (req, res, next) => {
     if(profile) {
       const profileID = profile.get('profileID');
       const newThread = {
-        topicID,
+        topicID: topic,
         profileID,
         name,
         content
       };
   
       await Threads.create(newThread);
-  
+
       res.send({
         message: 'Thread created successfully!'
       })
