@@ -39,6 +39,41 @@ const createThread = async (req, res, next) => {
   }
 }
 
+const getThreadById = async (req, res, next) => {
+  try {
+    const {
+      threadID
+    } = req.query
+
+    const threadNotFound = new BadRequestError('Ouch :( ! This thread does not exist');
+  
+    if(!threadID) {
+      throw threadNotFound;
+    }
+  
+    const thread = await Threads.findOne({
+      attributes: ['id', ['name', 'title'], 'content', 'createdAt'],
+      include: {
+        model: Profiles,
+        as: 'profile',
+        attributes: ['id', ['profileName', 'name'], 'avatar']
+      },
+      where: {
+        id: threadID
+      }
+    })
+
+    if(!thread) {
+      throw threadNotFound;
+    }
+
+    res.send(thread);
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
-  createThread
+  createThread,
+  getThreadById
 }
