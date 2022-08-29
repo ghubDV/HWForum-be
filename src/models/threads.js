@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     topicID: DataTypes.INTEGER,
     profileID: DataTypes.INTEGER,
     name: DataTypes.TEXT,
-    content: DataTypes.TEXT
+    content: DataTypes.TEXT,
+    replies: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Threads',

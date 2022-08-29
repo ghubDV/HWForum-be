@@ -10,6 +10,8 @@ const createThread = async (req, res, next) => {
     } = req.body;
   
     const userID = req.auth.user.id;
+    const HTMLContent = content.html;
+
     const profile = await Profiles.findOne({
       attributes: [['id', 'profileID']],
       where: {
@@ -23,13 +25,14 @@ const createThread = async (req, res, next) => {
         topicID: topic,
         profileID,
         name,
-        content
+        content: HTMLContent
       };
   
-      await Threads.create(newThread);
+      const result = await Threads.create(newThread);
 
       res.send({
-        message: 'Thread created successfully!'
+        message: 'Thread created successfully!',
+        threadID: result.dataValues.id
       })
     } else {
       throw new BadRequestError('You need to create a profile to be able to post a thread!')

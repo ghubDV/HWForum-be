@@ -1,4 +1,4 @@
-const { Profiles } = require('../models');
+const { Profiles, Users } = require('../models');
 const InternalError = require('../helpers/error/internalError');
 
 const createProfile = async (req, res, next) => {
@@ -37,13 +37,21 @@ const createProfile = async (req, res, next) => {
 const getProfile = async(req, res, next) => {
   try {
     const {
-      id
-    } = req.auth.user;
+      username
+    } = req.query;
+
   
-    const profile = await Profiles.findOne({
-      attributes: ['profileName', 'firstName', 'lastName', 'isPublic'],
+    const result = await Users.findOne({
+      attributes: ['id'],
       where: {
-        userID: id
+        username: username
+      }
+    });
+
+    const profile = await Profiles.findOne({
+      attributes: ['profileName', 'firstName', 'lastName', 'avatar', 'isPublic'],
+      where: {
+        userID: result.dataValues.id
       }
     })
 

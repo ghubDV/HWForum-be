@@ -9,7 +9,9 @@ const validateThread = (req, res, next) => {
     content
   } = req.body;
 
-  const validationResult = ThreadSchema.validate({ topic, name, content });
+  const textContent = content.text;
+
+  const validationResult = ThreadSchema.validate({ topic, name, content: textContent });
 
   if(validationResult.error !== undefined) {
     throw new BadRequestError(parseJOIError(validationResult.error));

@@ -68,7 +68,7 @@ const getThreadsTopic = async (req, res, next) => {
     })
 
     const threads = await Threads.findAll({
-      attributes: ['id', ['name', 'title'], 'content', 'createdAt'],
+      attributes: ['id', ['name', 'title'], 'content', 'replies', 'createdAt'],
       include: {
         model: Profiles,
         as: 'profile',
