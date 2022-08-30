@@ -1,5 +1,6 @@
 const { Profiles, Threads } = require('../models');
 const BadRequestError = require('../helpers/error/badRequestError');
+const InternalError = require('../helpers/error/internalError');
 
 const createThread = async (req, res, next) => {
   try {
@@ -55,7 +56,7 @@ const getThreadById = async (req, res, next) => {
     }
   
     const thread = await Threads.findOne({
-      attributes: ['id', ['name', 'title'], 'content', 'createdAt'],
+      attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
       include: {
         model: Profiles,
         as: 'profile',
@@ -76,7 +77,41 @@ const getThreadById = async (req, res, next) => {
   }
 }
 
+const editPost = async (req, res, next) => {
+  try {
+    const {
+      postID,
+      content,
+      isThread
+    } = req.body;
+  
+    if(isThread) {
+      const result = await Threads.update(
+        {
+          content: content.html
+        },
+        {
+          where: {
+            id: postID
+          }
+        }
+      )
+
+      if(result[0] === 0) {
+        throw new InternalError('Something went horribly wrong when trying to update your profile');
+      }
+    }
+
+    res.send({
+      message: 'Post updated successfully!'
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createThread,
+  editPost,
   getThreadById
 }
