@@ -1,0 +1,80 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS "Threads" (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `topicID` INTEGER NOT NULL, `profileID` INTEGER NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `replies` INTEGER DEFAULT 0, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, CONSTRAINT `fk-topic` FOREIGN KEY (`topicID`) REFERENCES `Topics` (`id`), CONSTRAINT `fk-profile` FOREIGN KEY (`profileID`) REFERENCES `Profiles` (`id`));
+INSERT INTO Threads VALUES(1,2,1,'GTX 980 gives no signal to monitor','<p>From yesterday, when trying to start my computer, I am not getting a video signal</p>',0,'2022-08-24 07:55:40.529 +00:00','2022-08-30 06:36:21.719 +00:00');
+INSERT INTO Threads VALUES(2,1,2,'R9 3900X is it worth buying?','My current CPU is a R5 1600 and I was wondering if upgrading to a 3900X is worth for video editing',0,'2022-08-24 07:57:24.639 +00:00','2022-08-24 07:57:24.639 +00:00');
+INSERT INTO Threads VALUES(4,2,2,'My RTX 3070 overheats','My GPU started overheating for no reason... idk why :(.',0,'2022-08-24 10:07:56.853 +00:00','2022-08-24 10:07:56.853 +00:00');
+INSERT INTO Threads VALUES(5,3,3,'ASUS PRIME Z590-A BIOS Update','Hi, I don''t know what BIOS version ships with this board, but will it be safe to jump to the latest which is 1402? ASUS site. I know this may be hard to answer with out more info.',0,'2022-08-25 07:49:12.308 +00:00','2022-08-25 07:49:12.308 +00:00');
+INSERT INTO Threads VALUES(6,6,4,'EVGA P2 750 PSU fan making a whistling noise ?','I have an EVGA P2 750 that''s been serving me well for about a year. It''s developed some coil whine but that''s been behaving fairly well for now. However, the PSU fan itself has been making a noise that sounds like air being forced through a tight passage. It''s not a whine, not a buzz, not grinding or anything like that. I almost thought it was coil whine again but realized the sound vanishes when I turn off the fan via econ mode. I can hear the fan motor slowly power down and the whistling fades out when the motor stops. Turning it back on, the whistling returns immediately regardless of the motor.',0,'2022-08-25 07:57:05.366 +00:00','2022-08-25 07:57:05.366 +00:00');
+INSERT INTO Threads VALUES(9,1,1,'I9-10900k worth it?','<h3><strong>Is it worth buying this CPU in </strong><strong style="color: rgb(230, 0, 0);">2022</strong></h3>',0,'2022-08-26 11:16:31.608 +00:00','2022-08-26 11:16:31.608 +00:00');
+INSERT INTO Threads VALUES(10,4,5,' My PC won''t shut down when I run my ram at 3600 mhz as intended','<h2>I have 32 GB of 3600 corsair vengeance ram, in bios when I choose the auto clock speed it sets to 3466, so I decided to manually choose 3600. However, whenever I would try to shut down my PC, it would just turn right back on, I went into bios and switched it back to the auto 3466, and it was shutting down fine after that, I know the difference is minimal, but I''m still curious as to why this is happening.</h2><p><br></p><h3><strong style="color: rgb(102, 185, 102);">PC Specs:</strong></h3><h3><strong>Mobo</strong>: MSI B560M Pro VDH-Wifi</h3><h3><strong>Ram</strong>: Corsair vengeance DDR4 3600 mhz (4x8GB)</h3><h3><strong>CPU</strong>: i5-11400F</h3><h3><strong>GPU</strong>: RTX 3070 ti</h3><h3><strong>PSU</strong>: EVGA 750W</h3>',0,'2022-08-26 13:29:56.785 +00:00','2022-08-26 13:29:56.785 +00:00');
+INSERT INTO Threads VALUES(11,5,1,'AMD B450 - RAID & BIOS - disk not activated = unable to boot','<h3>Such a problem. </h3><h3>Gigabyte B450 DS3H. RAID-1 is made on the basis of the capability offered by the motherboard.</h3><h3>Windows stopped loading. Goes to the blue screen.</h3><h3><br></h3><h3>The bios sees the contents of the array (if you select a file to update the bios), but outside of the BIOS, no OS (Windows, Ubuntu)</h3><h3>or utility sees any disk in the system.</h3><h3>Picture:&nbsp;https://disk.yandex.com/i/VHEfNcQzIkM2Rg</h3><h3><br></h3><h3>Inside the RAID settings I see this:</h3><h3>a) one disk is DISABLED (why is it deactivated?)</h3><h3>b) another disk is REMOVED (OK, because I turned it off)</h3><h3><br></h3><h3><strong>Picture</strong>:&nbsp;<a href="https://disk.yandex.com/i/0TSiz2y9ROYQfQ" rel="noopener noreferrer" target="_blank">https://disk.yandex.com/i/0TSiz2y9ROYQfQ</a></h3><h3><br></h3><h3>The disk can be activated, but by going to another menu and immediately returning, it will still DISABLED.</h3><h3><br></h3><h3>I insert another new disk and also can''t add it to the array in any way.</h3><h3><br></h3><h3>Tell me where to dig?</h3><h3><br></h3><h2><strong style="color: rgb(194, 133, 255);">If I delete the array, will the data be lost for sure?</strong></h2>',0,'2022-08-26 14:24:26.392 +00:00','2022-08-26 14:24:26.392 +00:00');
+INSERT INTO Threads VALUES(12,7,5,'How to keep my laptop cooler?','<p>i9-12900k, 2070ti MSI Stealth GS66</p><p>Whenever I download a game or run multiple things my CPU gets up to 90c (never over 91c), and I know this is not healthy for it, especially for sustained work, gaming, or very large downloads. How can I help keep it cool without running the fans nearly maxed out? (When I do it starts making sounds) (It is not overclocked and never has been)</p><p><br></p><p>Dust is not an issue, it is sitting on a flat wood desk</p><p><br></p><p>What would you all recommend I do for this?</p>',0,'2022-08-29 06:17:51.651 +00:00','2022-08-29 06:17:51.651 +00:00');
+INSERT INTO Threads VALUES(13,7,5,'How to keep my laptop cooler?','<p>i9-12900k, 2070ti MSI Stealth GS66</p><p>Whenever I download a game or run multiple things my CPU gets up to 90c (never over 91c), and I know this is not healthy for it, especially for sustained work, gaming, or very large downloads. How can I help keep it cool without running the fans nearly maxed out? (When I do it starts making sounds) (It is not overclocked and never has been)</p><p><br></p><p>Dust is not an issue, it is sitting on a flat wood desk</p><p><br></p><p>What would you all recommend I do for this?</p>',0,'2022-08-29 06:18:11.580 +00:00','2022-08-29 06:18:11.580 +00:00');
+INSERT INTO Threads VALUES(14,6,1,'EVGA P2 750 PSU fan making a whistling noise ?','I have an EVGA P2 750 that''s been serving me well for about a year. It''s developed some coil whine but that''s been behaving fairly well for now. However, the PSU fan itself has been making a noise that sounds like air being forced through a tight passage. It''s not a whine, not a buzz, not grinding or anything like that. I almost thought it was coil whine again but realized the sound vanishes when I turn off the fan via econ mode. I can hear the fan motor slowly power down and the whistling fades out when the motor stops. Turning it back on, the whistling returns immediately regardless of the motor.',0,'2022-08-29 06:19:56.806 +00:00','2022-08-29 06:19:56.806 +00:00');
+INSERT INTO Threads VALUES(15,8,5,'sssssssssssssssafdsagffafsaw','<p>asfjsafjsahfa</p><p>\afsnfajnsf a</p><p>fsanfasl;f lasfnasfa</p>',0,'2022-08-29 06:21:38.383 +00:00','2022-08-29 06:21:38.383 +00:00');
+INSERT INTO Threads VALUES(16,8,5,'ngwjehugiusghiudashidfuahifhas','<p>hgajhfjsahfjkashgfha</p><p>jkafsfahgaljk	</p><p>jksfaghklas</p>',0,'2022-08-29 06:25:16.162 +00:00','2022-08-29 06:25:16.162 +00:00');
+INSERT INTO Threads VALUES(17,8,5,'sadafsaffasgemogjeuoasuij','<p>asfjioafhwujfhanfiahiu</p><p>gfajjfsauhuyfhewai</p><p>ganjfsjauaw</p>',0,'2022-08-29 06:26:55.536 +00:00','2022-08-29 06:26:55.536 +00:00');
+INSERT INTO Threads VALUES(18,8,5,'sadafsaffasgemogjeuoasuij','<p>asfjioafhwujfhanfiahiu</p><p>gfajjfsauhuyfhewai</p><p>ganjfsjauaw</p>',0,'2022-08-29 06:27:05.863 +00:00','2022-08-29 06:27:05.863 +00:00');
+INSERT INTO Threads VALUES(19,8,5,'jawfnawhuifhiawhfbas','<p>kafsljkasjfkasklfkasjlkf</p><p>jfakslfjas</p><p>kksajfdasf</p>',0,'2022-08-29 06:27:48.991 +00:00','2022-08-29 06:27:48.991 +00:00');
+INSERT INTO Threads VALUES(20,8,5,'uheufhaihfayewfguyafuywuyagufyg','<p>ashjbfhahfhawuyauw</p><p>afjsfjsajkfas</p><p>iooakosa</p>',0,'2022-08-29 06:29:50.147 +00:00','2022-08-29 06:29:50.147 +00:00');
+INSERT INTO Threads VALUES(21,1,1,'aaaaaaaaaaaaaaaaaaaaaaaa','<p>aaa</p><p><br></p><p><br></p><p><br></p><p>aaasafasffffffffffffffffffffffffffffffffffffffffffffff</p>',0,'2022-08-29 14:12:07.926 +00:00','2022-08-29 14:12:07.926 +00:00');
+INSERT INTO Threads VALUES(22,1,1,'aaaaaaaaaaaaaaa','<p>SUKA BLYAT IDI NAHUI PIDARAS</p>',0,'2022-08-30 05:57:56.625 +00:00','2022-08-30 09:00:57.691 +00:00');
+COMMIT;
+.auth ON|OFF             Show authorizer callbacks
+.backup ?DB? FILE        Backup DB (default "main") to FILE
+.bail on|off             Stop after hitting an error.  Default OFF
+.binary on|off           Turn binary output on or off.  Default OFF
+.cd DIRECTORY            Change the working directory to DIRECTORY
+.changes on|off          Show number of rows changed by SQL
+.check GLOB              Fail if output since .testcase does not match
+.clone NEWDB             Clone data into NEWDB from the existing database
+.databases               List names and files of attached databases
+.dbconfig ?op? ?val?     List or change sqlite3_db_config() options
+.dbinfo ?DB?             Show status information about the database
+.dump ?TABLE? ...        Render all database content as SQL
+.echo on|off             Turn command echo on or off
+.eqp on|off|full|...     Enable or disable automatic EXPLAIN QUERY PLAN
+.excel                   Display the output of next command in a spreadsheet
+.exit ?CODE?             Exit this program with return-code CODE
+.expert                  EXPERIMENTAL. Suggest indexes for specified queries
+.fullschema ?--indent?   Show schema and the content of sqlite_stat tables
+.headers on|off          Turn display of headers on or off
+.help ?-all? ?PATTERN?   Show help text for PATTERN
+.import FILE TABLE       Import data from FILE into TABLE
+.imposter INDEX TABLE    Create imposter table TABLE on index INDEX
+.indexes ?TABLE?         Show names of indexes
+.limit ?LIMIT? ?VAL?     Display or change the value of an SQLITE_LIMIT
+.lint OPTIONS            Report potential schema issues.
+.log FILE|off            Turn logging on or off.  FILE can be stderr/stdout
+.mode MODE ?TABLE?       Set output mode
+.nullvalue STRING        Use STRING in place of NULL values
+.once (-e|-x|FILE)       Output for the next SQL command only to FILE
+.open ?OPTIONS? ?FILE?   Close existing database and reopen FILE
+.output ?FILE?           Send output to FILE or stdout if FILE is omitted
+.parameter CMD ...       Manage SQL parameter bindings
+.print STRING...         Print literal STRING
+.progress N              Invoke progress handler after every N opcodes
+.prompt MAIN CONTINUE    Replace the standard prompts
+.quit                    Exit this program
+.read FILE               Read input from FILE
+.restore ?DB? FILE       Restore content of DB (default "main") from FILE
+.save FILE               Write in-memory database into FILE
+.scanstats on|off        Turn sqlite3_stmt_scanstatus() metrics on or off
+.schema ?PATTERN?        Show the CREATE statements matching PATTERN
+.selftest ?OPTIONS?      Run tests defined in the SELFTEST table
+.separator COL ?ROW?     Change the column and row separators
+.sha3sum ...             Compute a SHA3 hash of database content
+.shell CMD ARGS...       Run CMD ARGS... in a system shell
+.show                    Show the current values for various settings
+.stats ?on|off?          Show stats or turn stats on or off
+.system CMD ARGS...      Run CMD ARGS... in a system shell
+.tables ?TABLE?          List names of tables matching LIKE pattern TABLE
+.testcase NAME           Begin redirecting output to 'testcase-out.txt'
+.timeout MS              Try opening locked tables for MS milliseconds
+.timer on|off            Turn SQL timer on or off
+.trace ?OPTIONS?         Output each SQL statement as it is run
+.vfsinfo ?AUX?           Information about the top-level VFS
+.vfslist                 List all available VFSes
+.vfsname ?AUX?           Print the name of the VFS stack
+.width NUM1 NUM2 ...     Set column widths for "column" mode

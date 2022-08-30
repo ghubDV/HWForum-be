@@ -13,12 +13,12 @@ module.exports = {
     })
 
     await queryInterface.addConstraint('Threads', {
-      fields: ['profileID'],
+      fields: ['profileName'],
       type: 'foreign key',
       name: 'fk-profile',
       references: {
         table: 'Profiles',
-        field: 'id'
+        field: 'profileName'
       }
     })
   },

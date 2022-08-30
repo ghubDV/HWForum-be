@@ -14,17 +14,17 @@ const createThread = async (req, res, next) => {
     const HTMLContent = content.html;
 
     const profile = await Profiles.findOne({
-      attributes: [['id', 'profileID']],
+      attributes: ['profileName'],
       where: {
         userID: userID
       }
     })
   
     if(profile) {
-      const profileID = profile.get('profileID');
+      const profileName = profile.get('profileName');
       const newThread = {
         topicID: topic,
-        profileID,
+        profileName,
         name,
         content: HTMLContent
       };

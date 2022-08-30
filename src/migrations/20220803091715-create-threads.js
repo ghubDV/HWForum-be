@@ -12,9 +12,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      profileID: {
+      profileName: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       name: {
         allowNull: false,
