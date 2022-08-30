@@ -1,18 +1,24 @@
-const { createThread, editPost, getThreadById } = require('../controllers/thread.controller');
+const { createComment, createThread, updatePost, getThreadOrCommentsByThread } = require('../controllers/thread.controller');
 const { validateThread, validatePost } = require('../middlewares/thread.middleware');
 
 module.exports = (app) => {
+
+  app.post('/createComment', 
+    validatePost,
+    createComment
+  )
+
   app.post('/createThread',
     validateThread,
     createThread
   )
 
-  app.get('/getThreadById',
-    getThreadById
+  app.get('/getThreadOrCommentsByThread',
+    getThreadOrCommentsByThread
   )
 
   app.patch('/updatePost',
     validatePost,
-    editPost
+    updatePost
   )
 }

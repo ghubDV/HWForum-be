@@ -1,6 +1,59 @@
-const { Profiles, Threads } = require('../models');
+const { Profiles, Threads, Comments } = require('../models');
 const BadRequestError = require('../helpers/error/badRequestError');
 const InternalError = require('../helpers/error/internalError');
+
+const createComment = async (req, res, next) => {
+  try {
+    const {
+      thread,
+      content
+    } = req.body;
+
+    const userID = req.auth.user.id;
+    const HTMLContent = content.html;
+
+    const profile = await Profiles.findOne({
+      attributes: ['profileName'],
+      where: {
+        userID: userID
+      }
+    })
+
+    if(profile) {
+      const profileName = profile.get('profileName');
+      const newComment= {
+        threadID: thread,
+        profileName,
+        content: HTMLContent
+      };
+  
+      await Comments.create(newComment);
+
+      const result = await Threads.increment(
+        'replies',
+        {
+          by: 1,
+          where: {
+            id: thread
+          }
+        }
+      )
+
+      if(result[0] === 0) {
+        throw new InternalError('Something went horribly wrong when trying create your comment');
+      }
+
+      res.send({
+        message: 'Comment created successfully!',
+      })
+    } else {
+      throw new BadRequestError('You need to create a profile to be able to post a comment!')
+    }
+
+  } catch (error) {
+    next(error)
+  }
+}
 
 const createThread = async (req, res, next) => {
   try {
@@ -43,63 +96,29 @@ const createThread = async (req, res, next) => {
   }
 }
 
-const getThreadById = async (req, res, next) => {
-  try {
-    const {
-      threadID
-    } = req.query
-
-    const threadNotFound = new BadRequestError('Ouch :( ! This thread does not exist');
-  
-    if(!threadID) {
-      throw threadNotFound;
-    }
-  
-    const thread = await Threads.findOne({
-      attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
-      include: {
-        model: Profiles,
-        as: 'profile',
-        attributes: ['id', ['profileName', 'name'], 'avatar']
-      },
-      where: {
-        id: threadID
-      }
-    })
-
-    if(!thread) {
-      throw threadNotFound;
-    }
-
-    res.send(thread);
-  } catch (error) {
-    next(error)
-  }
-}
-
-const editPost = async (req, res, next) => {
+const updatePost = async (req, res, next) => {
   try {
     const {
       postID,
       content,
       isThread
     } = req.body;
-  
-    if(isThread) {
-      const result = await Threads.update(
-        {
-          content: content.html
-        },
-        {
-          where: {
-            id: postID
-          }
-        }
-      )
 
-      if(result[0] === 0) {
-        throw new InternalError('Something went horribly wrong when trying to update your profile');
+    const Post = isThread ? Threads : Comments;
+  
+    const result = await Post.update(
+      {
+        content: content.html
+      },
+      {
+        where: {
+          id: postID
+        }
       }
+    )
+
+    if(result[0] === 0) {
+      throw new InternalError('Something went horribly wrong when trying to update your profile');
     }
 
     res.send({
@@ -110,8 +129,61 @@ const editPost = async (req, res, next) => {
   }
 }
 
+
+const getThreadOrCommentsByThread= async (req, res, next) => {
+  try {
+    const {
+      threadID,
+      isThread
+    } = req.query
+
+    const threadNotFound = new BadRequestError('Ouch :( ! This thread does not exist');
+  
+    if(!threadID) {
+      throw threadNotFound;
+    }
+
+    let post;
+
+    if(isThread) {
+      post = await Threads.findOne({
+        attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
+        include: {
+          model: Profiles,
+          as: 'profile',
+          attributes: ['id', ['profileName', 'name'], 'avatar']
+        },
+        where: {
+          id: threadID
+        }
+      })
+    } else {
+      post = await Comments.findAll({
+        attributes: ['id', 'content', 'updatedAt'],
+        include: {
+          model: Profiles,
+          as: 'profile',
+          attributes: ['id', ['profileName', 'name'], 'avatar']
+        },
+        where: {
+          threadID: threadID
+        }
+      })
+    }
+
+    if(!post) {
+      throw threadNotFound;
+    }
+
+    res.send(post);
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
+  createComment,
   createThread,
-  editPost,
-  getThreadById
+  updatePost,
+  getThreadOrCommentsByThread
 }
