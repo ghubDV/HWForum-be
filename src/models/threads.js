@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Threads.belongsTo(models.Topics);
-      models.Topics.hasMany(Threads);
+      models.Topics.hasMany(Threads, { as: 'threads' });
 
       Threads.belongsTo(models.Profiles, {
         as: 'profile',

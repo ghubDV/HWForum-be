@@ -60,32 +60,27 @@ const getThreadsTopic = async (req, res, next) => {
       topicID
     } = req.query;
 
-    const topic = await Topics.findOne({
-      attributes: ['name'],
+    const topicAndThreads = await Topics.findOne({
+      attributes: ['id', ['name', 'topic']],
+      include: {
+        model: Threads,
+        as: 'threads',
+        attributes: ['id', ['name', 'title'], 'content', 'replies', 'updatedAt'],
+        include: {
+          model: Profiles,
+          as: 'profile',
+          attributes: [['profileName', 'name'], 'avatar']
+        }
+      },
       where: {
         id: topicID
-      }
-    })
-
-    const threads = await Threads.findAll({
-      attributes: ['id', ['name', 'title'], 'content', 'replies', 'updatedAt'],
-      include: {
-        model: Profiles,
-        as: 'profile',
-        attributes: [['profileName', 'name'], 'avatar']
-      },
-      where: {
-        topicID: topicID
       },
       order: [
-        ['updatedAt', 'DESC']
+        [{model: Threads, as: 'threads'}, 'updatedAt', 'desc']
       ]
     })
 
-    res.send({
-      topic: topic.name,
-      threads: threads
-    });
+    res.send(topicAndThreads);
 
   } catch (error) {
     next(error);

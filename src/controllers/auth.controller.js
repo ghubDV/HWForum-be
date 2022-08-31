@@ -233,7 +233,7 @@ const checkAuthenthication = (req, res, next) => {
     if(!user) {
       res.clearCookie(process.env.SESSION_NAME);
       if(req.guard) {
-        throw new ForbiddenError('Access not authorized');
+        throw new ForbiddenError('You have to log in!');
       }
       throw new UnauthorizedError('You have to log in to access this!');
     }
