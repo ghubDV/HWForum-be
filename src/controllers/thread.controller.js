@@ -130,14 +130,14 @@ const updatePost = async (req, res, next) => {
 }
 
 
-const getThreadOrCommentsByThread= async (req, res, next) => {
+const getThreadOrCommentsByThread = async (req, res, next) => {
   try {
     const {
       threadID,
       isThread
     } = req.query
 
-    const threadNotFound = new BadRequestError('Ouch :( ! This thread does not exist');
+    const threadNotFound = new BadRequestError('Ouch :( ! We couldn\'t find this thread');
   
     if(!threadID) {
       throw threadNotFound;
@@ -181,9 +181,70 @@ const getThreadOrCommentsByThread= async (req, res, next) => {
   }
 }
 
+const getThreadAndComments = async (req, res, next) => {
+  try {
+    const {
+      threadID
+    } = req.query;
+
+    const threadNotFound = new BadRequestError('Ouch :( ! We couldn\'t find this thread');
+
+    if(!threadID) {
+      throw threadNotFound;
+    }
+
+    let posts = await Threads.findOne({
+      attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
+      include: [
+        {
+          model: Profiles,
+          as: 'profile',
+          attributes: [['profileName', 'name'], 'avatar']
+        },
+        {
+          model: Comments,
+          as: 'comments',
+          attributes: ['id', 'content', 'updatedAt'],
+          include: {
+            model: Profiles,
+            as: 'profile',
+            attributes: [['profileName', 'name'], 'avatar']
+          },
+        }
+      ],
+      where: {
+        id: threadID
+      }
+    })
+
+    if(!posts) {
+      throw threadNotFound;
+    }
+
+    posts = {...posts.dataValues};
+
+    const thread = {
+      id: posts.id,
+      title: posts.title,
+      content: posts.content,
+      updatedAt: posts.updatedAt,
+      profile: posts.profile,
+      isThread: true
+    }
+    
+    const parsedPosts = [thread, ...posts.comments];
+
+    res.send(parsedPosts);
+
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   createComment,
   createThread,
   updatePost,
-  getThreadOrCommentsByThread
+  getThreadOrCommentsByThread,
+  getThreadAndComments
 }
