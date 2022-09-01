@@ -5,7 +5,7 @@ const InternalError = require('../helpers/error/internalError');
 const createComment = async (req, res, next) => {
   try {
     const {
-      thread,
+      id,
       content
     } = req.body;
 
@@ -22,7 +22,7 @@ const createComment = async (req, res, next) => {
     if(profile) {
       const profileName = profile.get('profileName');
       const newComment= {
-        threadID: thread,
+        threadID: id,
         profileName,
         content: HTMLContent
       };
@@ -34,7 +34,7 @@ const createComment = async (req, res, next) => {
         {
           by: 1,
           where: {
-            id: thread
+            id: id
           }
         }
       )
@@ -58,7 +58,7 @@ const createComment = async (req, res, next) => {
 const createThread = async (req, res, next) => {
   try {
     const {
-      topic,
+      id,
       name,
       content
     } = req.body;
@@ -76,7 +76,7 @@ const createThread = async (req, res, next) => {
     if(profile) {
       const profileName = profile.get('profileName');
       const newThread = {
-        topicID: topic,
+        topicID: id,
         profileName,
         name,
         content: HTMLContent
@@ -99,12 +99,14 @@ const createThread = async (req, res, next) => {
 const updatePost = async (req, res, next) => {
   try {
     const {
-      postID,
+      id,
       content,
       isThread
     } = req.body;
 
     const Post = isThread ? Threads : Comments;
+
+    const userID = req.auth.user.id;
   
     const result = await Post.update(
       {
@@ -112,7 +114,16 @@ const updatePost = async (req, res, next) => {
       },
       {
         where: {
-          id: postID
+          id: id,
+          profileName: [
+            sequelize.literal(`
+              SELECT Profiles.profileName
+              FROM Users
+              LEFT OUTER JOIN
+              Profiles ON Users.id = Profiles.userID
+              WHERE Users.id = ${userID}
+            `)
+          ]
         }
       }
     )
@@ -129,55 +140,50 @@ const updatePost = async (req, res, next) => {
   }
 }
 
-
-const getThreadOrCommentsByThread = async (req, res, next) => {
+const deletePost = async (req, res, next) => {
   try {
     const {
-      threadID,
-      isThread
-    } = req.query
+      id,
+      threadID
+    } = req.body;
 
-    const threadNotFound = new BadRequestError('Ouch :( ! We couldn\'t find this thread');
-  
-    if(!threadID) {
-      throw threadNotFound;
+    const userID = req.auth.user.id;
+
+    const result = await Comments.destroy({
+      where: {
+        id: id,
+        profileName: [
+          sequelize.literal(`
+            SELECT Profiles.profileName
+            FROM Users
+            LEFT OUTER JOIN
+            Profiles ON Users.id = Profiles.userID
+            WHERE Users.id = ${userID}
+          `)
+        ]
+      }
+    })
+
+    if(result === 0) {
+      throw new InternalError('Something went horribly wrong when trying to delete your post');
     }
 
-    let post;
-
-    if(isThread) {
-      post = await Threads.findOne({
-        attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
-        include: {
-          model: Profiles,
-          as: 'profile',
-          attributes: ['id', ['profileName', 'name'], 'avatar']
-        },
+    await Threads.decrement(
+      'replies',
+      {
+        by: 1,
         where: {
           id: threadID
         }
-      })
-    } else {
-      post = await Comments.findAll({
-        attributes: ['id', 'content', 'updatedAt'],
-        include: {
-          model: Profiles,
-          as: 'profile',
-          attributes: ['id', ['profileName', 'name'], 'avatar']
-        },
-        where: {
-          threadID: threadID
-        }
-      })
-    }
+      }
+    )
 
-    if(!post) {
-      throw threadNotFound;
-    }
+    res.send({
+      message: 'Comment deleted successfully!'
+    });
 
-    res.send(post);
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
@@ -202,6 +208,8 @@ const getThreadAndComments = async (req, res, next) => {
       }
     })
 
+    const totalPages = Math.ceil(count.dataValues.comments / pageSize);
+
     let posts = await Threads.findOne({
       attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
       include: [
@@ -216,7 +224,7 @@ const getThreadAndComments = async (req, res, next) => {
           attributes: ['id', 'content', 'createdAt', 'updatedAt'],
           subQuery: true,
           limit: pageSize,
-          offset: count.dataValues.comments > pageSize ? (page - 1) * pageSize : 0,
+          offset: count.dataValues.comments > pageSize && page <= totalPages ? (page - 1) * pageSize : 0,
           include: {
             model: Profiles,
             as: 'profile',
@@ -261,6 +269,6 @@ module.exports = {
   createComment,
   createThread,
   updatePost,
-  getThreadOrCommentsByThread,
+  deletePost,
   getThreadAndComments
 }

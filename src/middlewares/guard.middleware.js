@@ -4,6 +4,7 @@ const guardRoute = (req, res, next) => {
     '/createProfile',
     '/createThread',
     '/updatePost',
+    '/deletePost',
     '/protected', 
     '/updateProfile',
   ];

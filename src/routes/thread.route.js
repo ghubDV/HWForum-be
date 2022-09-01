@@ -1,4 +1,4 @@
-const { createComment, createThread, updatePost, getThreadOrCommentsByThread , getThreadAndComments} = require('../controllers/thread.controller');
+const { createComment, createThread, updatePost, getThreadAndComments, deletePost} = require('../controllers/thread.controller');
 const { validateThread, validatePost } = require('../middlewares/thread.middleware');
 
 module.exports = (app) => {
@@ -13,16 +13,16 @@ module.exports = (app) => {
     createThread
   )
 
-  app.get('/getThreadOrCommentsByThread',
-    getThreadOrCommentsByThread
-  )
-
-  app.post('/getThreadAndComments',
-    getThreadAndComments
+  app.delete('/deletePost',
+    deletePost
   )
 
   app.patch('/updatePost',
     validatePost,
     updatePost
+  )
+
+  app.post('/getThreadAndComments',
+    getThreadAndComments
   )
 }
