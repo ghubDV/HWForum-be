@@ -17,7 +17,7 @@ module.exports = (app) => {
     getThreadOrCommentsByThread
   )
 
-  app.get('/getThreadAndComments',
+  app.post('/getThreadAndComments',
     getThreadAndComments
   )
 

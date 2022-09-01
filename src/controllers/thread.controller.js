@@ -1,4 +1,4 @@
-const { Profiles, Threads, Comments } = require('../models');
+const { Profiles, Threads, Comments, sequelize } = require('../models');
 const BadRequestError = require('../helpers/error/badRequestError');
 const InternalError = require('../helpers/error/internalError');
 
@@ -184,14 +184,23 @@ const getThreadOrCommentsByThread = async (req, res, next) => {
 const getThreadAndComments = async (req, res, next) => {
   try {
     const {
-      threadID
-    } = req.query;
+      threadID,
+      pageSize,
+      page
+    } = req.body;
 
     const threadNotFound = new BadRequestError('Ouch :( ! We couldn\'t find this thread');
 
     if(!threadID) {
       throw threadNotFound;
     }
+
+    const count = await Comments.findOne({
+      attributes:[[sequelize.fn('COUNT', sequelize.col('id')), 'comments']],
+      where: {
+        threadID: threadID
+      }
+    })
 
     let posts = await Threads.findOne({
       attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
@@ -204,20 +213,26 @@ const getThreadAndComments = async (req, res, next) => {
         {
           model: Comments,
           as: 'comments',
-          attributes: ['id', 'content', 'updatedAt'],
+          attributes: ['id', 'content', 'createdAt', 'updatedAt'],
+          subQuery: true,
+          limit: pageSize,
+          offset: count.dataValues.comments > pageSize ? (page - 1) * pageSize : 0,
           include: {
             model: Profiles,
             as: 'profile',
             attributes: [['profileName', 'name'], 'avatar']
           },
+          order: [
+            ['createdAt', 'asc']
+          ]
         }
       ],
       where: {
         id: threadID
-      }
+      },
     })
 
-    if(!posts) {
+    if(!posts || !count) {
       throw threadNotFound;
     }
 
@@ -229,6 +244,7 @@ const getThreadAndComments = async (req, res, next) => {
       content: posts.content,
       updatedAt: posts.updatedAt,
       profile: posts.profile,
+      commentsCount: count.dataValues.comments,
       isThread: true
     }
     
