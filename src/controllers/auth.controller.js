@@ -1,4 +1,4 @@
-const { Users } = require('../models');
+const { Users, Profiles } = require('../models');
 const { generateHashedPassword, checkPassword, encryptData } = require('../helpers/auth/auth.helper');
 const { sendEmail } = require('../helpers/email/email.helper');
 const { currentMinutes } = require('../helpers/date/date.helper');
@@ -47,6 +47,10 @@ const loginUser = async (req, res, next) => {
     
     const getUser = await Users.findOne({
       attributes: ['id', 'username', 'hashedPassword', 'isActivated'],
+      include: {
+        model: Profiles,
+        attributes: ['profileName']
+      },
       where: {
         username: user.username
       }
@@ -57,11 +61,19 @@ const loginUser = async (req, res, next) => {
     } else if (!getUser.isActivated) {
       throw new BadRequestError('Account is not activated!')
     } else {
+      let profileName;
+
+      if(getUser.Profile !== null) {
+        profileName = getUser.Profile.profileName;
+      }
+
       req.session.user = {
         id: getUser.id,
-        username: getUser.username
+        username: getUser.username,
+        ...profileName && { profileName }
       };
-      res.send({ message: `Logged in as ${user.username}!`, username: user.username});
+
+      res.send({ message: `Logged in as ${user.username}!`, username: user.username, profileName: profileName});
     }
   } catch (error) {
     next(error);
@@ -226,7 +238,7 @@ const checkAuthenthication = (req, res, next) => {
           }
         }
       } else {
-        res.send({ authorized: true, username: user.username });
+        res.send({ authorized: true, username: user.username, profileName: user.profileName });
       }
     }
   

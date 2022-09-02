@@ -58,7 +58,7 @@ const createComment = async (req, res, next) => {
 const createThread = async (req, res, next) => {
   try {
     const {
-      id,
+      topic,
       name,
       content
     } = req.body;
@@ -76,7 +76,7 @@ const createThread = async (req, res, next) => {
     if(profile) {
       const profileName = profile.get('profileName');
       const newThread = {
-        topicID: id,
+        topicID: topic,
         profileName,
         name,
         content: HTMLContent
