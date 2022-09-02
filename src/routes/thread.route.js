@@ -13,7 +13,7 @@ module.exports = (app) => {
     createThread
   )
 
-  app.delete('/deletePost',
+  app.post('/deletePost',
     deletePost
   )
 
