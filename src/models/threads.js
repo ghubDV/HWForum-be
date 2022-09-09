@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
 
       Threads.belongsTo(models.Profiles, {
         as: 'profile',
-        foreignKey: 'profileName',
-        targetKey: 'profileName'
+        foreignKey: 'profileID',
+        targetKey: 'id'
       });
       models.Profiles.hasMany(Threads);
     }

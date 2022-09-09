@@ -69,7 +69,7 @@ const getThreadsTopic = async (req, res, next) => {
         include: {
           model: Profiles,
           as: 'profile',
-          attributes: [['profileName', 'name'], 'avatar']
+          attributes: ['id', ['profileName', 'name'], 'avatar']
         }
       },
       where: {

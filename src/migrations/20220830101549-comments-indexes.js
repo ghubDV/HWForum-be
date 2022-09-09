@@ -2,7 +2,7 @@
 
 module.exports = {
   async up (queryInterface) {
-    await  queryInterface.addIndex('Comments', ['threadID', 'profileName'], {
+    await  queryInterface.addIndex('Comments', ['threadID', 'profileID'], {
       name: 'comments_indexes'
     });
   },

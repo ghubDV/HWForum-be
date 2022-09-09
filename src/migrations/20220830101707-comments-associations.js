@@ -13,18 +13,18 @@ module.exports = {
     })
 
     await queryInterface.addConstraint('Comments', {
-      fields: ['profileName'],
+      fields: ['profileID'],
       type: 'foreign key',
       name: 'fk-profile',
       references: {
         table: 'Profiles',
-        field: 'profileName'
+        field: 'id'
       }
     })
   },
 
   async down (queryInterface) {
-    await queryInterface.removeConstraint('Threads', 'fk-thread');
-    await queryInterface.removeConstraint('Threads', 'fk-profile');
+    await queryInterface.removeConstraint('Comments', 'fk-thread');
+    await queryInterface.removeConstraint('Comments', 'fk-profile');
   }
 };

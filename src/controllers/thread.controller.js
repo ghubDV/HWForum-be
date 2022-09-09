@@ -13,17 +13,17 @@ const createComment = async (req, res, next) => {
     const HTMLContent = content.html;
 
     const profile = await Profiles.findOne({
-      attributes: ['profileName'],
+      attributes: ['id'],
       where: {
         userID: userID
       }
     })
 
     if(profile) {
-      const profileName = profile.get('profileName');
+      const profileID = profile.get('id');
       const newComment= {
         threadID: id,
-        profileName,
+        profileID,
         content: HTMLContent
       };
   
@@ -67,17 +67,17 @@ const createThread = async (req, res, next) => {
     const HTMLContent = content.html;
 
     const profile = await Profiles.findOne({
-      attributes: ['profileName'],
+      attributes: ['id'],
       where: {
         userID: userID
       }
     })
   
     if(profile) {
-      const profileName = profile.get('profileName');
+      const profileID = profile.get('id');
       const newThread = {
         topicID: topic,
-        profileName,
+        profileID,
         name,
         content: HTMLContent
       };
@@ -115,9 +115,9 @@ const updatePost = async (req, res, next) => {
       {
         where: {
           id: id,
-          profileName: [
+          profileID: [
             sequelize.literal(`
-              SELECT Profiles.profileName
+              SELECT Profiles.id
               FROM Users
               LEFT OUTER JOIN
               Profiles ON Users.id = Profiles.userID
@@ -152,9 +152,9 @@ const deletePost = async (req, res, next) => {
     const result = await Comments.destroy({
       where: {
         id: id,
-        profileName: [
+        profileID: [
           sequelize.literal(`
-            SELECT Profiles.profileName
+            SELECT Profiles.id
             FROM Users
             LEFT OUTER JOIN
             Profiles ON Users.id = Profiles.userID

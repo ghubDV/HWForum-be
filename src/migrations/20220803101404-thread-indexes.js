@@ -2,7 +2,7 @@
 
 module.exports = {
   async up (queryInterface) {
-    await  queryInterface.addIndex('Threads', ['topicID', 'profileName'], {
+    await  queryInterface.addIndex('Threads', ['topicID', 'profileID'], {
       name: 'threads_indexes'
     });
   },
