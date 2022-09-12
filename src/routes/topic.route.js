@@ -13,7 +13,7 @@ module.exports = (app) => {
     getTopicsCategories
   )
 
-  app.get('/getThreadsTopic',
+  app.post('/getThreadsTopic',
     getThreadsTopic
   )
 }

@@ -1,5 +1,6 @@
 const BadRequestError = require('../helpers/error/badRequestError');
-const { Categories, Profiles, Topics, Threads } = require('../models');
+const { getPagesAndOffset } = require('../helpers/pagination/pagination.helper');
+const { Categories, Profiles, Topics, Threads, sequelize } = require('../models');
 
 const getCategories = async (req, res, next) => {
   try {
@@ -57,8 +58,19 @@ const getTopicsCategories = async (req, res, next) => {
 const getThreadsTopic = async (req, res, next) => {
   try {
     const  {
-      topicID
-    } = req.query;
+      topicID,
+      pageSize,
+      page
+    } = req.body;
+
+    const count = await Threads.findOne({
+      attributes:[[sequelize.fn('COUNT', sequelize.col('id')), 'threads']],
+      where: {
+        topicID: topicID
+      }
+    })
+
+    const pagination = getPagesAndOffset(count.dataValues.threads, pageSize, page);
 
     const topicAndThreads = await Topics.findOne({
       attributes: ['id', ['name', 'topic']],
@@ -66,21 +78,24 @@ const getThreadsTopic = async (req, res, next) => {
         model: Threads,
         as: 'threads',
         attributes: ['id', ['name', 'title'], 'content', 'replies', 'updatedAt'],
+        subQuery: true,
+        limit: pageSize,
+        offset: pagination.offset,
         include: {
           model: Profiles,
           as: 'profile',
           attributes: ['id', ['profileName', 'name'], 'avatar']
-        }
+        },
+        order: [
+          ['updatedAt', 'desc']
+        ]
       },
       where: {
         id: topicID
-      },
-      order: [
-        [{model: Threads, as: 'threads'}, 'updatedAt', 'desc']
-      ]
+      }
     })
 
-    res.send(topicAndThreads);
+    res.send({ ...topicAndThreads.dataValues, pageCount: pagination.pages });
 
   } catch (error) {
     next(error);
