@@ -1,6 +1,7 @@
 const { Profiles, Threads, Comments, sequelize } = require('../models');
 const BadRequestError = require('../helpers/error/badRequestError');
 const InternalError = require('../helpers/error/internalError');
+const { getPagesAndOffset } = require('../helpers/pagination/pagination.helper');
 
 const createComment = async (req, res, next) => {
   try {
@@ -208,7 +209,7 @@ const getThreadAndComments = async (req, res, next) => {
       }
     })
 
-    const totalPages = Math.ceil(count.dataValues.comments / pageSize);
+    const pagination = getPagesAndOffset(count.dataValues.comments, pageSize, page);
 
     let posts = await Threads.findOne({
       attributes: ['id', ['name', 'title'], 'content', 'updatedAt'],
@@ -224,7 +225,7 @@ const getThreadAndComments = async (req, res, next) => {
           attributes: ['id', 'content', 'createdAt', 'updatedAt'],
           subQuery: true,
           limit: pageSize,
-          offset: count.dataValues.comments > pageSize && page <= totalPages ? (page - 1) * pageSize : 0,
+          offset: pagination.offset,
           include: {
             model: Profiles,
             as: 'profile',
@@ -252,7 +253,7 @@ const getThreadAndComments = async (req, res, next) => {
       content: posts.content,
       updatedAt: posts.updatedAt,
       profile: posts.profile,
-      commentsCount: count.dataValues.comments,
+      pageCount: pagination.pages,
       isThread: true
     }
     
