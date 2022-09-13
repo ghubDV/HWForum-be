@@ -25,6 +25,8 @@ const createProfile = async (req, res, next) => {
     }
   
     await Profiles.create(profile);
+
+    req.session.user.profileName = profileName;
   
     res.send({
       message: 'Profile created successfully!'
@@ -104,6 +106,8 @@ const updateProfile = async (req, res, next) => {
     if(result[0] === 0) {
       throw new InternalError('Something went horribly wrong when trying to update your profile');
     }
+
+    req.session.user.profileName = profileName;
 
     res.send({
       message: 'Profile was updated successfully!'
