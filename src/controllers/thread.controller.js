@@ -6,7 +6,7 @@ const { getPagesAndOffset } = require('../helpers/pagination/pagination.helper')
 const createComment = async (req, res, next) => {
   try {
     const {
-      id,
+      threadID,
       content
     } = req.body;
 
@@ -23,7 +23,7 @@ const createComment = async (req, res, next) => {
     if(profile) {
       const profileID = profile.get('id');
       const newComment= {
-        threadID: id,
+        threadID: threadID,
         profileID,
         content: HTMLContent
       };
@@ -35,7 +35,7 @@ const createComment = async (req, res, next) => {
         {
           by: 1,
           where: {
-            id: id
+            id: threadID
           }
         }
       )
